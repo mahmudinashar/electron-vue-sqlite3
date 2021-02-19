@@ -1,4 +1,4 @@
-# [IMPORTANT] : this is still on going project
+# [IMPORTANT] : Still on going project
 changes may accours anytime
 
 > An electron-vue project
