@@ -5,9 +5,8 @@ import { Connection } from "./connection"
 import { PrepareDatabase } from "./prepareDatabase"
 
 let con = new Connection()
+let prepare = new PrepareDatabase();
 let knex = con.connect()
-
-let prepare = new PrepareDatabase()
 
 prepare.dropTableUser(knex)
 prepare.createTableUser(knex)
