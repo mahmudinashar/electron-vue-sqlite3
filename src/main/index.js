@@ -1,40 +1,17 @@
 "use strict"
 
 import { app, BrowserWindow, ipcMain } from "electron"
-const path = require("path")
+import { Connection } from "./connection"
+import { PrepareDatabase } from "./prepareDatabase"
 
-const userData = app.getPath("userData")
-const dbFile = path.resolve(userData, "database.sqlite")
+let con = new Connection()
+let knex = con.connect()
 
-var knex = require("knex")({
-  client: "sqlite3",
-  connection: {
-    filename: dbFile
-  },
-  useNullAsDefault: true
-})
+let prepare = new PrepareDatabase()
 
-// ---------------
-//  prepateTable
-// ---------------
-knex.schema.createTableIfNotExists("User", function (table) {
-  table.increments()
-  table.string("FirstName")
-  table.string("LastName")
-}).then(function () {
-  return knex("User").insert([
-    { FirstName: "A", LastName: "A" },
-    { FirstName: "B", LastName: "BB" }
-  ])
-}
-)
-
-if (process.env.NODE_ENV === "development") {
-  let result = knex.select("FirstName").from("User")
-  result.then(function (rows) {
-    console.log(rows)
-  })
-}
+prepare.dropTableUser(knex)
+prepare.createTableUser(knex)
+prepare.insertTableUser(knex, "Firstname", "Lastname")
 
 if (process.env.NODE_ENV !== "development") {
   global.__static = require("path").join(__dirname, "/static").replace(/\\/g, "\\\\")
