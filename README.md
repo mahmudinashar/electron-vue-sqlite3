@@ -6,18 +6,24 @@ changes may accours anytime
 #### Build Setup
 
 ``` bash
-# install dependencies
-npm install
 
-# serve with hot reload at localhost:9080
+# clone project
+git clone https://github.com/mahmudinashar/electron-vue-sqlite3.git
+
+# enter project folder
+cd electron-vue-sqlite3
+
+# install dependencies
+yarn or npm install
+
+# running project in development
 npm run dev
 
-# build electron application for production
+# build project
 npm run build
 
-
 # lint all JS/Vue component files in `src/`
-npm run lint
+npm run lint:fix
 
 ```
 
