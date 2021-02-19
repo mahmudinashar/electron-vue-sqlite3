@@ -1,4 +1,4 @@
-# test
+# [IMPORTANT] : this is still on going project, changes may accours anytime
 
 > An electron-vue project
 
