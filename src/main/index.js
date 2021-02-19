@@ -5,7 +5,7 @@ import { Connection } from "./connection"
 import { PrepareDatabase } from "./prepareDatabase"
 
 let con = new Connection()
-let prepare = new PrepareDatabase();
+let prepare = new PrepareDatabase()
 let knex = con.connect()
 
 prepare.dropTableUser(knex)
@@ -22,15 +22,12 @@ const winURL = process.env.NODE_ENV === "development"
   : `file://${__dirname}/index.html`
 
 function createWindow () {
-  /**
-   * Initial window options
-   */
   mainWindow = new BrowserWindow({
-    height: 650,
+    height: 700,
     useContentSize: true,
-    width: 960,
-    minWidth: 900,
-    minHeight: 600,
+    width: 1280,
+    minWidth: 1024,
+    minHeight: 650,
     resizable: false,
     webPreferences: {
       nodeIntegration: true,
@@ -66,23 +63,3 @@ app.on("activate", () => {
     createWindow()
   }
 })
-
-/**
- * Auto Updater
- *
- * Uncomment the following code below and install `electron-updater` to
- * support auto updating. Code Signing with a valid certificate is required.
- * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-electron-builder.html#auto-updating
- */
-
-/*
-import { autoUpdater } from 'electron-updater'
-
-autoUpdater.on('update-downloaded', () => {
-  autoUpdater.quitAndInstall()
-})
-
-app.on('ready', () => {
-  if (process.env.NODE_ENV === 'production') autoUpdater.checkForUpdates()
-})
- */

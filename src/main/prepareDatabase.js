@@ -21,7 +21,7 @@ export class PrepareDatabase {
   }
 
   async dropTableUser (conn) {
-    let result = await conn("User").dropTable({})
+    let result = await conn.schema.dropTable("User")
     return result
   }
 }

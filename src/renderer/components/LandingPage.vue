@@ -4,7 +4,7 @@
     <main>
       <div class="left-side">
         <span class="title">
-          Welcome Electron!
+          Welcome {{data}} !
         </span>
         <system-information></system-information>
       </div>
@@ -33,7 +33,6 @@
 
 <script>
   import SystemInformation from "./LandingPage/SystemInformation"
-
   const electron = require("electron")
   const userDataPath = (electron.app || electron.remote.app).getPath(
     "userData"
@@ -53,13 +52,13 @@
 
   export default {
     name: "landing-page",
+    data () {
+      return {
+        data: "Landingpage"
+      }
+    },
     components: { SystemInformation },
     methods: {
-      data () {
-        return {
-          data: "Landingpage"
-        }
-      },
       open (link) {
         this.$electron.shell.openExternal(link)
       }
