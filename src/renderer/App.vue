@@ -6,7 +6,7 @@
 
 <script>
   export default {
-    name: "test"
+    name: "Electron-Vue-Sqlite3"
   }
 </script>
 

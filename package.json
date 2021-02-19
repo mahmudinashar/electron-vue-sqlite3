@@ -1,9 +1,9 @@
 {
-  "name": "test",
+  "name": "electron-vue-sqlite3",
   "version": "0.0.1",
   "author": "Mamudin Ashar <mahmudinashar@yahoo.co.id>",
-  "description": "An electron-vue project",
-  "license": null,
+  "description": "A boliterplate build from electron-vue with sqlite3 compatible",
+  "license": "MIT",
   "main": "./dist/electron/main.js",
   "scripts": {
     "build": "node .electron-vue/build.js && electron-builder",
@@ -19,8 +19,8 @@
     "postinstall": "electron-builder install-app-deps"
   },
   "build": {
-    "productName": "test",
-    "appId": "com.example.yourapp",
+    "productName": "electron-vue-sqlite3",
+    "appId": "id.go.kpu.pdpb",
     "directories": {
       "output": "build"
     },
@@ -55,6 +55,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "knex": "^0.21.17",
+    "pg-native": "^3.0.0",
     "sqlite3": "^5.0.2",
     "vue": "^2.5.16",
     "vue-electron": "^1.0.6",
@@ -95,9 +96,13 @@
     "file-loader": "^1.1.11",
     "html-webpack-plugin": "^3.2.0",
     "mini-css-extract-plugin": "0.4.0",
+    "mssql": "^6.3.1",
     "multispinner": "^0.2.1",
+    "mysql": "^2.18.1",
+    "mysql2": "^2.2.5",
     "node-loader": "^0.6.0",
     "node-sass": "^4.9.2",
+    "pg": "^8.5.1",
     "sass-loader": "^7.0.3",
     "style-loader": "^0.21.0",
     "url-loader": "^1.0.1",
