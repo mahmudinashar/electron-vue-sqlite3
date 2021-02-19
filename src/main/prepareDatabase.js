@@ -17,6 +17,7 @@ export class PrepareDatabase {
       FirstName: FirstName,
       LastName: LastName
     })
+
     return result
   }
 

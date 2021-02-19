@@ -4,7 +4,7 @@
     <main>
       <div class="left-side">
         <span class="title">
-          Welcome {{data}} !
+          Welcome {{data}}!
         </span>
         <system-information></system-information>
       </div>
@@ -15,7 +15,7 @@
           <p id="result"></p>   
           
           <div class="title" style="margin-top:30px">Sqlite3 Dir</div>
-          <p id="appDoc"></p>       
+          <p>{{lokasi}}</p>       
           <div class="title" style="margin-top:30px">Getting Started</div>
           <p>
             electron-vue comes packed with detailed documentation that covers everything from
@@ -37,10 +37,9 @@
   const userDataPath = (electron.app || electron.remote.app).getPath(
     "userData"
   )
-
+  console.log("asdasd", userDataPath)
   const ipc = electron.ipcRenderer
   document.addEventListener("DOMContentLoaded", function () {
-    document.getElementById("appDoc").innerHTML = userDataPath
     ipc.send("mainWindowLoaded")
     ipc.on("resultSent", function (evt, result) {
       let resultEl = document.getElementById("result")
@@ -54,7 +53,8 @@
     name: "landing-page",
     data () {
       return {
-        data: "Landingpage"
+        data: "Landingpage",
+        lokasi: userDataPath
       }
     },
     components: { SystemInformation },

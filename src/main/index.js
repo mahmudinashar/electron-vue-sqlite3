@@ -12,6 +12,12 @@ prepare.dropTableUser(knex)
 prepare.createTableUser(knex)
 prepare.insertTableUser(knex, "Firstname", "Lastname")
 
+let result = knex.select("FirstName").from("User")
+result.then(function (rows) {
+  console.log(rows)
+  mainWindow.webContents.send("resultSent", rows)
+})
+
 if (process.env.NODE_ENV !== "development") {
   global.__static = require("path").join(__dirname, "/static").replace(/\\/g, "\\\\")
 }
@@ -28,7 +34,7 @@ function createWindow () {
     width: 1280,
     minWidth: 1024,
     minHeight: 650,
-    resizable: false,
+    resizable: true,
     webPreferences: {
       nodeIntegration: true,
       nodeIntegrationInWorker: true,
@@ -41,6 +47,7 @@ function createWindow () {
   ipcMain.on("mainWindowLoaded", function () {
     let result = knex.select("FirstName").from("User")
     result.then(function (rows) {
+      console.log(rows)
       mainWindow.webContents.send("resultSent", rows)
     })
   })

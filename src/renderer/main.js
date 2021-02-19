@@ -1,18 +1,10 @@
-import Vue from "vue"
-import axios from "axios"
+import "./assets/css/vendor/bootstrap.min.css"
+// import "bootstrap-vue/dist/bootstrap-vue.css"
 
-import App from "./App"
-import router from "./router"
-import store from "./store"
+let render = () => {
+  import("./assets/css/sass/piaf.light.greenlime.scss").then(() =>
+    require("./load")
+  )
+}
 
-if (!process.env.IS_WEB) Vue.use(require("vue-electron"))
-Vue.http = Vue.prototype.$http = axios
-Vue.config.productionTip = false
-
-/* eslint-disable no-new */
-new Vue({
-  components: { App },
-  router,
-  store,
-  template: "<App/>"
-}).$mount("#app")
+render()
