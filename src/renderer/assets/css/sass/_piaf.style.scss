@@ -204,7 +204,7 @@ button {
 }
 
 .btn {
-    border-radius: 50px;
+    border-radius: 3px;
     outline: initial !important;
     box-shadow: none !important;
     box-shadow: initial !important;
@@ -568,8 +568,8 @@ button {
 .btn-sm,
 .btn-group-sm>.btn {
     padding: 0.5rem 1rem;
-    font-size: 0.76rem;
-    line-height: 1.5;
+    font-size: 13px;
+    line-height: 1.2;
 }
 
 .btn-xs,
@@ -1555,9 +1555,8 @@ button {
     position: fixed;
     top: 0;
     bottom: 0;
-    padding-top: $navbar-height;
+    padding-top: 0px !important;
     z-index: 4;
-    height: calc(100% - #{$navbar-height});
     transition: border-radius $menu-collapse-time;
 
     .ps-container {
@@ -1567,11 +1566,10 @@ button {
 
     .main-menu {
         width: $main-menu-width;
-        height: calc(100% - #{$navbar-height});
-        background: $foreground-color;
+        height: 100%;
+        background: $sidebar-color;
         z-index: 3;
         position: fixed;
-        // transition: transform $menu-collapse-time;
         padding-top: 10px;
         padding-bottom: 10px;
         left: 0;

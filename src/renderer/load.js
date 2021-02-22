@@ -5,7 +5,6 @@ import App from "./App"
 import router from "./router"
 import store from "./store"
 
-import Breadcrumb from "./components/Common/Breadcrumb"
 import Colxx from "./components/Common/Colxx"
 
 import BootstrapVue from "bootstrap-vue"
@@ -35,7 +34,6 @@ const i18n = new VueI18n({
   messages
 })
 
-Vue.component("piaf-breadcrumb", Breadcrumb)
 Vue.component("b-colxx", Colxx)
 
 if (!process.env.IS_WEB) Vue.use(require("vue-electron"))

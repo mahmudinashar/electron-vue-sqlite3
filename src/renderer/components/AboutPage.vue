@@ -1,5 +1,5 @@
 <template>
-  <div id="wrapper">
+  <div id="main">
     <img id="logo" src="~@/assets/logo.png" alt="electron-vue">
     <main>
       <div class="left-side">
@@ -10,12 +10,9 @@
       </div>
 
       <div class="right-side">
-        <div class="doc">
-          <div class="title">Sqlite3</div>
-          <p id="result"></p>   
-          
+        <div class="doc">          
           <div class="title" style="margin-top:30px">Sqlite3 Dir</div>
-          <p>{{lokasi}}</p>       
+          <p>{{sqlitePath}}</p>       
           <div class="title" style="margin-top:30px">Getting Started</div>
           <p>
             electron-vue comes packed with detailed documentation that covers everything from
@@ -32,16 +29,16 @@
 </template>
 
 <script>
-  import SystemInformation from "./LandingPage/SystemInformation"
+  import SystemInformation from "./AboutPage/SystemInformation"
   const electron = require("electron")
   const userDataPath = (electron.app || electron.remote.app).getPath(
     "userData"
   )
-  console.log("asdasd", userDataPath)
   const ipc = electron.ipcRenderer
   document.addEventListener("DOMContentLoaded", function () {
     ipc.send("mainWindowLoaded")
     ipc.on("resultSent", function (evt, result) {
+      console.log(result)
       let resultEl = document.getElementById("result")
       for (var i = 0; i < result.length; i++) {
         resultEl.innerHTML += "First Name: " + result[i].FirstName.toString() + "<br/>"
@@ -50,19 +47,14 @@
   })
 
   export default {
-    name: "landing-page",
+    name: "about-page",
     data () {
       return {
-        data: "Landingpage",
-        lokasi: userDataPath
+        data: "AboutPage",
+        sqlitePath: userDataPath
       }
     },
-    components: { SystemInformation },
-    methods: {
-      open (link) {
-        this.$electron.shell.openExternal(link)
-      }
-    }
+    components: { SystemInformation }
   }
 </script>
 

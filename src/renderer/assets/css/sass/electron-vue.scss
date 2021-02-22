@@ -1,0 +1,44 @@
+#app {}
+
+#main {
+    margin: 10px 20px;
+}
+
+#header {
+    background-color: #222222;
+    height: 53px;
+    color: #ffffff;
+    padding: 10px 10px;
+}
+
+#footer {
+    border-top: 1px solid #CCC;
+    height: 30px;
+    color: #888888;
+    padding: 4px 10px;
+    position: fixed;
+    width: 100%;
+    bottom: 0px;
+    font-size: 11x;
+}
+
+.inactive-botton {
+    margin-left: 4px;
+    background-color: #444;
+    border-color: #444;
+    color: #AAA;
+
+    &:hover {
+        color: #ffffff;
+        background-color: darken(#444444, 8%);
+        border-color: darken(#444444, 8%);
+    }
+
+    &:focus {
+        color: #ffffff;
+        background-color: darken(#444444, 8%);
+        border-color: darken(#444444, 8%);
+    }
+
+
+}

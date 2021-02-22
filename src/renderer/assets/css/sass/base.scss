@@ -2,6 +2,7 @@ $separator-color-light: #f3f3f3;
 $separator-color: #d7d7d7;
 $background-color: #f8f8f8;
 $foreground-color : white;
+$sidebar-color : #cccccc;
 $input-background: white;
 
 $dark-btn-background: #131113;
@@ -9,9 +10,9 @@ $light-btn-background: #ececec;
 
 $button-text-color: #fff;
 
-$theme-color-1: #6fb327;
-$theme-color-2: #aec851;
-$theme-color-3: #aaba9f;
+$theme-color-1: #F67B0C;
+$theme-color-2: #FF6702;
+$theme-color-3: #FF8E00;
 $theme-color-4: #849b65;
 $theme-color-5: #3db264;
 $theme-color-6: #9ecd7e;
@@ -40,3 +41,4 @@ $lpLogoPathPinned: "";
 
 @import "./_mixins.scss";
 @import "./_piaf.style.scss";
+@import "./electron-vue.scss";
