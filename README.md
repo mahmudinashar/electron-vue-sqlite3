@@ -8,7 +8,7 @@ This project is electron-vue starterkit/boilerplate with sqlite3 ready that insp
 * [Bootstrap-Vue](https://bootstrap-vue.org/) - With BootstrapVue you can build responsive, mobile-first, and ARIA accessible projects on the web using Vue.js
 * [Bootstrap](https://getbootstrap.com/) - The world’s most popular front-end open source toolkit
 * [Bootstrap-Vue](https://bootstrap-vue.org/) - With BootstrapVue you can build responsive, mobile-first, and ARIA accessible projects on the web using Vue.js
-* [simplelineicons](https://simplelineicons.github.io/) -  Simple and Minimal Line Icons 
+* [Simple-line-icons](https://simplelineicons.github.io/) -  Simple and Minimal Line Icons 
 * Many more you can check in package.json
 
 ## Setup Project
