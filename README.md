@@ -1,5 +1,5 @@
 # ELECTRON - VUE - SQLITE3
-This project is electron-vue starterkit/boilerplate with sqlite3 ready that inspired by postman (https://www.postman.com/). Postman is one of most popular application which is build with electron and react. We have attach some popular javascript script in this project, that make this project ready to use.
+This project is electron-vue starterkit working with sqlite3, this project was inspired by postman (https://www.postman.com/). Postman is one of most popular application which is build with electron and react. We have attach some popular javascript script in this project, that make this project ready to use.
 
 ## Built With
 * [Vue.Js](https://vuejs.org/) - The Progressive JavaScript Framework 
@@ -9,6 +9,7 @@ This project is electron-vue starterkit/boilerplate with sqlite3 ready that insp
 * [Bootstrap](https://getbootstrap.com/) - The world’s most popular front-end open source toolkit
 * [Bootstrap-Vue](https://bootstrap-vue.org/) - With BootstrapVue you can build responsive, mobile-first, and ARIA accessible projects on the web using Vue.js
 * [Simple-line-icons](https://simplelineicons.github.io/) -  Simple and Minimal Line Icons 
+* [Sqlite3](https://www.npmjs.com/package/sqlite3) - Asynchronous, non-blocking SQLite3 bindings for Node.js.
 * many more, in package.json
 
 ## Setup Project
@@ -40,7 +41,6 @@ npm run build
 npm run lint:fix
 
 ```
-
 ## Screenshoot
 ![image](https://github.com/mahmudinashar/electron-vue-sqlite3/blob/master/screenshot/image1.png)
 ![image](https://github.com/mahmudinashar/electron-vue-sqlite3/blob/master/screenshot/image2.png)
