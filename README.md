@@ -13,7 +13,7 @@ I hope, you can easily build a fancy modern desktop application with this.
 * [Simple-line-icons](https://simplelineicons.github.io/) -  Simple and Minimal Line Icons 
 * [Sqlite3](https://www.npmjs.com/package/sqlite3) - Asynchronous, non-blocking SQLite3 bindings for Node.js.
 * [ESLint](https://eslint.org/) - ESLint is an open source JavaScript linting utility
-* many more, in package.json
+* [More] (https://github.com/mahmudinashar/electron-vue-sqlite3/blob/master/package.json) - check in package.json
 
 ## Setup Project
 
