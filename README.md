@@ -1,7 +1,7 @@
 # ELECTRON - VUE - SQLITE3
 This project is electron-vue starterkit working with sqlite3, this project was inspired by postman (https://www.postman.com/). Postman is one of most popular application which is build with electron and react. We have attach some popular javascript script in this project, that make this project ready to use.
 
-You can easily build a fancy modern desktop application :
+I hope, you can easily build a fancy modern desktop application with this.
 
 ## Built With
 * [Vue.Js](https://vuejs.org/) - The Progressive JavaScript Framework 
