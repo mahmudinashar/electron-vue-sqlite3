@@ -11,7 +11,7 @@ This project is electron-vue starterkit/boilerplate with sqlite3 ready that insp
 * [simplelineicons](https://simplelineicons.github.io/) -  Simple and Minimal Line Icons 
 * Many more you can check in package.json
 
-#### Installing Project
+## Setup Project
 
 ``` bash
 
@@ -23,6 +23,12 @@ cd electron-vue-sqlite3
 
 # install dependencies
 yarn or npm install
+
+# fixing your script
+npm run lint:fix
+
+# building native dependencies {electron require native}
+npm run postinstall
 
 # running project in development
 npm run dev
