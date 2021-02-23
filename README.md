@@ -1,13 +1,17 @@
 # ELECTRON - VUE - SQLITE3
-This project is electron-vue starterkit/boilerplate with sqlite3 ready that inspired by postman (https://www.postman.com/). Postman is one of most popular application which is build with electron and react.
+This project is electron-vue starterkit/boilerplate with sqlite3 ready that inspired by postman (https://www.postman.com/). Postman is one of most popular application which is build with electron and react. We have attach some popular javascript script in this project, that make this project ready to use.
 
-We already attach some popular javascript/vue script in this project, that make this project ready to use, some of them are :
+## Built With
+* [Vue.Js](https://vuejs.org/) - The Progressive JavaScript Framework 
+* [Electron.Js](https://www.electronjs.org/) - Framework for creating native applications with web technologies
+* [Electron-Vue](https://github.com/SimulatedGREG/electron-vue) - An Electron & Vue.js quick start boilerplate with vue-cli scaffolding,
+* [Bootstrap-Vue](https://bootstrap-vue.org/) - With BootstrapVue you can build responsive, mobile-first, and ARIA accessible projects on the web using Vue.js
+* [Bootstrap](https://getbootstrap.com/) - The world’s most popular front-end open source toolkit
+* [Bootstrap-Vue](https://bootstrap-vue.org/) - With BootstrapVue you can build responsive, mobile-first, and ARIA accessible projects on the web using Vue.js
+* [simplelineicons](https://simplelineicons.github.io/) -  Simple and Minimal Line Icons 
+* Many more you can check in package.json
 
-> vue-bootstrap
-> bootstrap
-> simple-line-icons
-
-#### Build Setup
+#### Installing Project
 
 ``` bash
 
@@ -31,6 +35,13 @@ npm run lint:fix
 
 ```
 
----
+## Screenshoot
 
-This project was generated with [electron-vue](https://github.com/SimulatedGREG/electron-vue)@[45a3e22](https://github.com/SimulatedGREG/electron-vue/tree/45a3e224e7bb8fc71909021ccfdcfec0f461f634) using [vue-cli](https://github.com/vuejs/vue-cli). Documentation about the original structure can be found [here](https://simulatedgreg.gitbooks.io/electron-vue/content/index.html).
+
+## Contributing
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+Please make sure to update tests as appropriate.
+
+## License
+[MIT](https://choosealicense.com/licenses/mit/)
