@@ -9,7 +9,7 @@ This project is electron-vue starterkit/boilerplate with sqlite3 ready that insp
 * [Bootstrap](https://getbootstrap.com/) - The world’s most popular front-end open source toolkit
 * [Bootstrap-Vue](https://bootstrap-vue.org/) - With BootstrapVue you can build responsive, mobile-first, and ARIA accessible projects on the web using Vue.js
 * [Simple-line-icons](https://simplelineicons.github.io/) -  Simple and Minimal Line Icons 
-* Many more you can check in package.json
+* many more, in package.json
 
 ## Setup Project
 
@@ -42,7 +42,8 @@ npm run lint:fix
 ```
 
 ## Screenshoot
-
+![image](https://github.com/mahmudinashar/electron-vue-sqlite3/blob/master/screenshot/image1.png)
+![image](https://github.com/mahmudinashar/electron-vue-sqlite3/blob/master/screenshot/image2.png)
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
