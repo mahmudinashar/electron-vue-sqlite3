@@ -22,11 +22,6 @@
         title: "Main Application"
       }
     },
-    methods: {
-      open (link) {
-        this.$electron.shell.openExternal(link)
-      }
-    },
     mounted () {
       ipc.on("pageMenu", (event, page) => {
         if (page === "about") {

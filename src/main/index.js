@@ -11,6 +11,7 @@ import {
 import { Connection } from "./connection"
 import { PrepareDatabase } from "./prepareDatabase"
 
+// database and schema
 let con = new Connection()
 let prepare = new PrepareDatabase()
 let knex = con.connect()
@@ -19,30 +20,20 @@ prepare.dropTableUser(knex)
 prepare.createTableUser(knex)
 prepare.insertTableUser(knex, "Firstname", "Lastname")
 
-let result = knex.select("FirstName").from("User")
-result.then(function (rows) {
-  console.log(rows)
-  mainWindow.webContents.send("resultSent", rows)
-})
-
 if (process.env.NODE_ENV !== "development") {
   global.__static = require("path").join(__dirname, "/static").replace(/\\/g, "\\\\")
 } else {
-  const contextMenu = require("electron-context-menu")
+  // show context menu *inspect element* only in development mode
+  let contextMenu = require("electron-context-menu")
   contextMenu({
     prepend: (defaultActions, params, browserWindow) => [
-      {
-        label: "Rainbow",
-        visible: params.mediaType === "image"
-      },
-      {
-        label: "Search Google for “{selection}”",
-        visible: params.selectionText.trim().length > 0,
-        click: () => {
-          console.log("clicked")
-        }
-      }
     ]
+  })
+
+  // testing connection to sqlite3
+  let result = knex.select("FirstName").from("User")
+  result.then(function (rows) {
+    console.log(rows)
   })
 }
 
