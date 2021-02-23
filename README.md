@@ -12,6 +12,7 @@ I hope, you can easily build a fancy modern desktop application with this.
 * [Bootstrap-Vue](https://bootstrap-vue.org/) - With BootstrapVue you can build responsive, mobile-first, and ARIA accessible projects on the web using Vue.js
 * [Simple-line-icons](https://simplelineicons.github.io/) -  Simple and Minimal Line Icons 
 * [Sqlite3](https://www.npmjs.com/package/sqlite3) - Asynchronous, non-blocking SQLite3 bindings for Node.js.
+* [ESLint](https://eslint.org/) - ESLint is an open source JavaScript linting utility
 * many more, in package.json
 
 ## Setup Project
