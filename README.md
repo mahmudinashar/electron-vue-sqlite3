@@ -2,10 +2,10 @@
 This project is electron-vue starterkit/boilerplate with sqlite3 ready that inspired by postman (https://www.postman.com/). Postman is one of most popular application which is build with electron and react.
 
 We already attach some popular javascript/vue script in this project, that make this project ready to use, some of them are :
-``` bash
-asd
 
-> An electron-vue project
+> vue-bootstrap
+> bootstrap
+> simple-line-icons
 
 #### Build Setup
 
