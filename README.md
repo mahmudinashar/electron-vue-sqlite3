@@ -1,5 +1,5 @@
-# [IMPORTANT] : Still on going project
-changes may accours anytime
+# [IMPORTANT] : ON GOING PROJECT!
+This project is electron-vue starterkit/boilerplate with sqlite3 ready that inspired by postman (https://www.postman.com/). Postman is one of most popular application which is build with electron and react.
 
 > An electron-vue project
 
