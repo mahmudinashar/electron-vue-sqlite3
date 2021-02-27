@@ -9,7 +9,7 @@ $border-radius: 0.1rem;
 
 /* 01.Base */
 body {
-    font-size: 15px;
+    font-size: 13px;
     color: $primary-color;
     background: $background-color;
 
@@ -32,12 +32,6 @@ hr {
 }
 
 /* 02.Buttons */
-
-button {
-    color: $primary-color;
-    outline: initial !important;
-}
-
 .btn {
     border-radius: 3px;
     outline: initial !important;

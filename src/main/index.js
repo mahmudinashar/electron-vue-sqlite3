@@ -16,24 +16,21 @@ let con = new Connection()
 let prepare = new PrepareDatabase()
 let knex = con.connect()
 
-prepare.dropTableUser(knex)
-prepare.createTableUser(knex)
-prepare.insertTableUser(knex, "Firstname", "Lastname")
+knex.schema.hasTable("setting").then(function (exists) {
+  if (!exists) {
+    prepare.createTableSetting(knex)
+    prepare.createTableWilayah(knex)
+    prepare.createTableTps(knex)
+  }
+})
 
 if (process.env.NODE_ENV !== "development") {
   global.__static = require("path").join(__dirname, "/static").replace(/\\/g, "\\\\")
 } else {
-  // show context menu *inspect element* only in development mode
   let contextMenu = require("electron-context-menu")
   contextMenu({
     prepend: (defaultActions, params, browserWindow) => [
     ]
-  })
-
-  // testing connection to sqlite3
-  let result = knex.select("FirstName").from("User")
-  result.then(function (rows) {
-    console.log(rows)
   })
 }
 
@@ -59,12 +56,96 @@ function createWindow () {
 
   mainWindow.loadURL(winURL)
 
-  ipcMain.on("mainWindowLoaded", function () {
-    let result = knex.select("FirstName").from("User")
-    result.then(function (rows) {
-      mainWindow.webContents.send("resultSent", rows)
-    })
+  // +++++++++++++++++++++
+  //        ipcMain
+  // +++++++++++++++++++++
+  ipcMain.on("saveSetting", (event, data) => {
+    knex("setting")
+      .truncate()
+      .then()
+      .catch((err) => {
+        mainWindow.webContents.send("saveSettingResult", err)
+      })
+
+    knex("setting")
+      .insert(data)
+      .then(
+        mainWindow.webContents.send(
+          "saveSettingResult",
+          "data setting has been saved to database!"
+        )
+      )
+      .catch((err) => {
+        mainWindow.webContents.send("saveSettingResult", err)
+      })
   })
+
+  ipcMain.on("saveWilayah", (event, data) => {
+    knex("wilayah")
+      .truncate()
+      .then()
+      .catch((err) => {
+        mainWindow.webContents.send("saveWilayahResult", err)
+      })
+
+    knex("wilayah")
+      .insert(data)
+      .then((rows) => {
+        mainWindow.webContents.send("saveWilayahResult", "data wilayah has been saved to database!")
+      })
+      .catch((err) => {
+        mainWindow.webContents.send("saveWilayahResult", err)
+      })
+      .finally(() => {})
+  })
+
+  ipcMain.on("saveTps", (event, data) => {
+    knex("tps")
+      .truncate()
+      .then()
+      .catch((err) => {
+        mainWindow.webContents.send("saveTpsResult", err)
+      })
+
+    var i
+    var j
+    var resArray = []
+    var chunk = 200
+    for (i = 0, j = data.length; i < j; i += chunk) {
+      resArray.push(data.slice(i, i + chunk))
+    }
+
+    var numChunk = Math.ceil(data.length / chunk)
+    for (i = 0, j = numChunk; i < j; i++) {
+      knex("tps")
+        .insert(resArray[i])
+        .then()
+        .catch((err) => {
+          console.log(err)
+        })
+        .finally(() => {})
+    }
+    mainWindow.webContents.send(
+      "saveTpsResult",
+      "data tps has been saved to database!"
+    )
+  })
+
+  ipcMain.on("currentSetting", (event, data) => {
+    knex
+      .from("setting")
+      .select("*")
+      .where("id", 1)
+      .then((rows) => {
+        mainWindow.webContents.send("currentSettingResult", rows)
+      })
+      .catch((err) => {
+        throw err
+      })
+      .finally(() => { })
+  })
+
+  // +++++++++++++++++++++
 
   mainWindow.on("closed", () => {
     mainWindow = null
@@ -83,7 +164,7 @@ function createWindow () {
         },
         {
           label: "About This Project",
-          accelerator: "Ctrl+A",
+          accelerator: "Ctrl+B",
           click () {
             mainWindow.webContents.send("pageMenu", "about")
           }
@@ -94,6 +175,25 @@ function createWindow () {
         {
           label: "Exit",
           role: "close"
+        }
+      ]
+    },
+    {
+      label: "Setting",
+      submenu: [
+        {
+          label: "Credential",
+          accelerator: "Ctrl+O",
+          click () {
+            mainWindow.webContents.send("pageMenu", "setting")
+          }
+        },
+        {
+          label: "Wilayah",
+          accelerator: "Ctrl+T",
+          click () {
+            mainWindow.webContents.send("pageMenu", "wilayah")
+          }
         }
       ]
     },
@@ -154,7 +254,15 @@ app.whenReady().then(() => {
     mainWindow.webContents.send("pageMenu", "home")
   })
 
-  globalShortcut.register("CommandOrControl+A", () => {
+  globalShortcut.register("CommandOrControl+B", () => {
     mainWindow.webContents.send("pageMenu", "about")
+  })
+
+  globalShortcut.register("CommandOrControl+O", () => {
+    mainWindow.webContents.send("pageMenu", "setting")
+  })
+
+  globalShortcut.register("CommandOrControl+T", () => {
+    mainWindow.webContents.send("pageMenu", "wilayah")
   })
 })

@@ -4,6 +4,32 @@
     margin: 20px 20px;
 }
 
+.modal-header .close {
+    display: none !important;
+}
+
+
+.modal .modal-header,
+.modal .modal-body,
+.modal .modal-footer {
+    padding: 15px !important;
+}
+
+.modal-title {
+    font-weight: bold;
+    font-size: 15px !important;
+}
+
+.modal .modal-footer {
+    border-top: 1px solid #FFF !important;
+}
+
+button {
+    color: $primary-color;
+    outline: initial !important;
+}
+
+
 #header {
     background-color: #222222;
     height: 53px;
@@ -39,6 +65,5 @@
         background-color: darken(#444444, 8%);
         border-color: darken(#444444, 8%);
     }
-
 
 }

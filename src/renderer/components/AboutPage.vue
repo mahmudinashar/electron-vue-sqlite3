@@ -34,17 +34,6 @@
   const userDataPath = (electron.app || electron.remote.app).getPath(
     "userData"
   )
-  const ipc = electron.ipcRenderer
-  document.addEventListener("DOMContentLoaded", function () {
-    ipc.send("mainWindowLoaded")
-    ipc.on("resultSent", function (evt, result) {
-      console.log(result)
-      let resultEl = document.getElementById("result")
-      for (var i = 0; i < result.length; i++) {
-        resultEl.innerHTML += "First Name: " + result[i].FirstName.toString() + "<br/>"
-      }
-    })
-  })
 
   export default {
     name: "about-page",
