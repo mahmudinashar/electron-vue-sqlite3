@@ -6,12 +6,12 @@ Vue.use(Router)
 export default new Router({
   routes: [
     {
-      path: "/home",
+      path: "/",
       name: "home-page",
       component: require("@/components/HomePage").default
     },
     {
-      path: "/",
+      path: "/wilayah",
       name: "wilayah-page",
       component: require("@/components/WilayahPage").default
     },

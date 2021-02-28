@@ -59,6 +59,92 @@ function createWindow () {
   // +++++++++++++++++++++
   //        ipcMain
   // +++++++++++++++++++++
+  ipcMain.on("getWilayahParent", (event, data) => {
+    knex
+      .from("wilayah")
+      .select("*")
+      .where("wilayah_id", data)
+      .then((rows) => {
+        mainWindow.webContents.send("getWilayahParentResult", rows[0])
+      })
+      .catch((err) => {
+        mainWindow.webContents.send("getWilayahParentResult", err)
+      })
+      .finally(() => { })
+  })
+
+  ipcMain.on("getWilayahChild", async (event, data) => {
+    var result = []
+    var rows = []
+    try {
+      rows = await knex
+        .from("wilayah")
+        .select("*")
+        .where("parent", data)
+    } catch (error) {
+      console.error(error)
+    }
+
+    // console.log(rows)
+    const promises = rows.map(async data => {
+      const container = {}
+      container["wilayah_id"] = data.wilayah_id
+      container["nama"] = data.nama
+      container["tingkat"] = data.tingkat
+      container["parent"] = data.parent
+
+      let where = {}
+      if (data.tingkat === 2) {
+        where = { "kabupaten_id": data.wilayah_id }
+      }
+      if (data.tingkat === 3) {
+        where = { "kecamatan_id": data.wilayah_id }
+      }
+      if (data.tingkat === 4) {
+        where = { "kelurahan_id": data.wilayah_id }
+      }
+
+      let hasil = await knex("tps")
+        .count("id", { as: "count" })
+        .where(where)
+
+      container["countTps"] = hasil[0].count
+      result.push(container)
+    })
+
+    await Promise.all(promises)
+    mainWindow.webContents.send("getWilayahChildResult", result)
+  })
+
+  ipcMain.on("getTpsChild", (event, data) => {
+    knex
+      .from("tps")
+      .select("*")
+      .where(data)
+      .then((rows) => {
+        // console.log(rows)
+        mainWindow.webContents.send("getTpsChildResult", rows)
+      })
+      .catch((err) => {
+        mainWindow.webContents.send("getTpsChildResult", err)
+      })
+      .finally(() => { })
+  })
+
+  ipcMain.on("getTpsCount", (event, data) => {
+    knex("tps")
+      .count("id", { as: "count" })
+      .where(data)
+      .then((rows) => {
+        console.log(rows[0])
+        mainWindow.webContents.send("getTpsCountResult", rows[0])
+      })
+      .catch((err) => {
+        mainWindow.webContents.send("getTpsCountResult", err)
+      })
+      .finally(() => { })
+  })
+
   ipcMain.on("saveSetting", (event, data) => {
     knex("setting")
       .truncate()
@@ -156,14 +242,28 @@ function createWindow () {
       label: "File",
       submenu: [
         {
-          label: "Home",
-          accelerator: "Ctrl+H",
+          label: "Setup (Inisialisasi)",
+          accelerator: "Ctrl+I",
+          click () {
+            mainWindow.webContents.send("pageMenu", "setting")
+          }
+        },
+        {
+          label: "Pemutakhiran",
+          accelerator: "Ctrl+P",
           click () {
             mainWindow.webContents.send("pageMenu", "home")
           }
         },
         {
-          label: "About This Project",
+          label: "Wilayah",
+          accelerator: "Ctrl+T",
+          click () {
+            mainWindow.webContents.send("pageMenu", "wilayah")
+          }
+        },
+        {
+          label: "About",
           accelerator: "Ctrl+B",
           click () {
             mainWindow.webContents.send("pageMenu", "about")
@@ -175,25 +275,6 @@ function createWindow () {
         {
           label: "Exit",
           role: "close"
-        }
-      ]
-    },
-    {
-      label: "Setting",
-      submenu: [
-        {
-          label: "Credential",
-          accelerator: "Ctrl+O",
-          click () {
-            mainWindow.webContents.send("pageMenu", "setting")
-          }
-        },
-        {
-          label: "Wilayah",
-          accelerator: "Ctrl+T",
-          click () {
-            mainWindow.webContents.send("pageMenu", "wilayah")
-          }
         }
       ]
     },
@@ -250,7 +331,7 @@ app.on("activate", () => {
 })
 
 app.whenReady().then(() => {
-  globalShortcut.register("CommandOrControl+H", () => {
+  globalShortcut.register("CommandOrControl+P", () => {
     mainWindow.webContents.send("pageMenu", "home")
   })
 
@@ -258,7 +339,7 @@ app.whenReady().then(() => {
     mainWindow.webContents.send("pageMenu", "about")
   })
 
-  globalShortcut.register("CommandOrControl+O", () => {
+  globalShortcut.register("CommandOrControl+I", () => {
     mainWindow.webContents.send("pageMenu", "setting")
   })
 

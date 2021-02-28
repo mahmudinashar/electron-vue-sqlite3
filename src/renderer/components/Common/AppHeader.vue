@@ -9,7 +9,7 @@
         <b-dropdown-item>{{$t('operation.save')}}</b-dropdown-item>
       </b-dropdown>
 
-      <b-button class="inactive-botton" size="sm" ><span class="simple-icon-event" style="color:#FFFFFF;"></span></b-button>
+      <b-button class="inactive-botton" size="sm" @click="routeTo('wilayah-page')"><span class="simple-icon-organization" style="color:#FFFFFF;"></span></b-button>
     </div>  
   </div>
 </template>
@@ -28,6 +28,9 @@
         }
         if (page === "home-page") {
           this.$router.push({ name: "home-page" })
+        }
+        if (page === "wilayah-page") {
+          this.$router.push({ name: "wilayah-page" })
         }
       }
     }

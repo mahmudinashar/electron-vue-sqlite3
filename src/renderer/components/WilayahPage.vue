@@ -1,186 +1,184 @@
 <template>
   <div id="main">
-    <b-button size="sm" @click="login()">{{$t('actions.save')}}</b-button>
-    <b-button size="sm" @click="validate()">validate</b-button>
-    <b-button size="sm" @click="download()">download</b-button>
+    <b-row>
+      <b-colxx xl="12" lg="12" md="12">
+          <b-table striped :items="data" :fields="fieldsTable" responsive="xl" v-if=dataReady thead-class="hidden_header">
+              <template v-slot:cell(Wilayah)="data">
+                <div v-if="data.value.nama === 'parent'"  style="font-weight:bold;font-size: 25px !important;margin-top: -7px;margin-bottom: -7px;">
+                    <b>
+                      <a style="color:#000000 !important" v-on:click="getWilayah(data.value.wilayah_id,data.value.nama)" :href="`#`+data.value.wilayah_id">
+                        {{currentWil.nama}}
+                      </a>
+                    </b>
+                </div>
+                <div v-if="data.value.nama != 'parent'">
+                  <div v-if="data.value.nama === 'TOTAL'">
+                    <b style="margin-left:10px;color:#444 !important">TOTAL  </b>
+                  </div>
+
+                  <div v-if="data.value.nama != 'TOTAL'">
+
+                    <div v-if="data.item.Tingkat == 4">
+                      <a style="margin-left:20px;color:#444 !important" v-on:click="getTps(data.value.wilayah_id,data.value.nama)" :href="`#`+data.value.wilayah_id">{{ data.value.nama }}</a>
+                    </div>
+                    <div v-else-if="data.item.Tingkat == 5">
+                      <div style="margin-left:20px;color:#444 !important">TPS <b>{{ data.value.nama }}</b></div>
+                    </div>
+                    <div v-else>
+                      <a style="margin-left:20px;color:#444 !important" v-on:click="getWilayah(data.value.wilayah_id,data.value.nama)" :href="`#`+data.value.wilayah_id">{{ data.value.nama }}</a>
+                    </div>                 
+                  </div>
+                </div>
+              </template>
+          </b-table>
+      </b-colxx>
+    </b-row>
   </div>
 </template>
 
 <script>
-import {
-  mapGetters
-} from "vuex"
-import { apiLogin, apiUrl, version, deviceId } from "../constants/config"
-import axios from "axios"
-
 const electron = require("electron")
 const ipc = electron.ipcRenderer
-
 export default {
+  components: {
+  },
   name: "wilayah-page",
   data () {
     return {
-      title: "Main Application",
-      isValidJwt: false,
-      isInetOn: false,
-      lastUsed: "",
-      currentUser: "",
-      jwt: ""
+      title: "Page Wilayah",
+      wilayahId: JSON.parse(localStorage.wilayah_id),
+      dataReady: false,
+      data: {},
+      currentWil: {},
+      fieldsTable: [
+        {
+          key: "Wilayah",
+          sortable: true
+        },
+        {
+          key: "Jumlah",
+          sortable: true,
+          class: "text-center d-none d-xl-block"
+        }
+
+      ]
+
     }
   },
-  computed: {
-    ...mapGetters(["currentUser"])
-  },
   methods: {
-    async download () {
-      let validate = await this.validate()
-      if (validate === "INVALID") {
-        await this.login()
-      }
+    async getTps (wilayahId) {
+      this.dataReady = false
+      var grantParent = ""
+      var tingkat = ""
+      ipc.send("getWilayahParent", wilayahId)
+      ipc.once("getWilayahParentResult", async (event, result) => {
+        grantParent = result.parent
+        tingkat = result.tingkat
+        this.currentWil.tingkat = result.tingkat
+        this.currentWil.wilayah_id = result.wilayah_id
+        this.currentWil.parent = result.parent
+        this.currentWil.nama = result.nama
+      })
 
-      console.log("xxx")
-      this.jwt = JSON.parse(localStorage.jwt)
-      this.lastUsed = localStorage.lastUsed
-      let endDate = new Date()
-      let seconds = Math.ceil((endDate.getTime() - this.lastUsed) / 1000)
-
-      // only if time is < 2 hour
-      if (seconds < 7200) {
-        // insert into wilayah
-        axios({
-          url: apiUrl,
-          method: "post",
-          headers: {
-            "Authorization": "Bearer " + this.jwt
-          },
-          data: {
-            query: `
-                  {
-                  getWilayahs {
-                    wilayah_id,
-                    parent,
-                    nama,
-                    tingkat
-                  }
-                }
-              `
-          }
-        }).then((result) => {
-          if (result.data.data.getWilayahs) {
-            const hasil = result.data.data.getWilayahs
-            ipc.send("saveWilayah", hasil)
-            ipc.once("saveWilayahResult", async (event, result) => {
-              console.log(result)
-            })
-          } else {
-            console.log(result)
-          }
+      ipc.send("getTpsChild", {"kelurahan_id": wilayahId})
+      ipc.once("getTpsChildResult", async (event, result) => {
+        let totalTps = 0
+        let childStat = result.map((data) => {
+          const container = {}
+          container["Wilayah"] = {nama: "" + data.tps_no, wilayah_id: data.tps_id}
+          container["Nama"] = data.tps_no
+          container["Jumlah"] = "-"
+          container["Tingkat"] = 5
+          totalTps = totalTps + 1
+          return container
         })
 
-        // insert into tps
-        axios({
-          url: apiUrl,
-          method: "post",
-          headers: {
-            "Authorization": "Bearer " + this.jwt
-          },
-          data: {
-            query: `
-                  {
-                  getTpss {
-                    tps_id,
-                    tps_no,
-                    kabupaten_id,
-                    kecamatan_id,
-                    kelurahan_id
-                  }
-                }
-              `
-          }
-        }).then((result) => {
-          if (result.data.data.getTpss) {
-            const hasil = result.data.data.getTpss
-            ipc.send("saveTps", hasil)
-            ipc.once("saveTpsResult", async (event, result) => {
-              console.log(result)
-            })
-          } else {
-            console.log(result)
-          }
-        })
-      } else {
-        console.log("your jwt is more than 2 hour, expired!")
-      }
+        // tambah awal
+        const awal = {}
+        if (tingkat < 3) {
+          awal["Wilayah"] = {nama: "parent", wilayah_id: wilayahId}
+        } else {
+          awal["Wilayah"] = {nama: "parent", wilayah_id: grantParent}
+        }
+
+        awal["Jumlah"] = ""
+        childStat.unshift(awal)
+
+        // tambah akhir
+        const akhir = {}
+        akhir["Wilayah"] = {nama: "TOTAL", wilayah_id: ""}
+        akhir["Jumlah"] = totalTps
+        childStat.push(akhir)
+
+        this.data = childStat
+        this.dataReady = true
+      })
     },
-    async validate () {
-      this.lastUsed = localStorage.lastUsed
-      var endDate = new Date()
-      var seconds = Math.ceil((endDate.getTime() - this.lastUsed) / 1000)
-      if (seconds > 7200) {
-        return "VALID"
-      } else {
-        return "INVALID"
-      }
-    },
-    async login () {
-      ipc.send("currentSetting")
-      ipc.once("currentSettingResult", async (event, result) => {
-        let username = result[0].username
-        let password = result[0].password
+    async getWilayah (wilayahId) {
+      this.dataReady = false
+      var grantParent = ""
+      var tingkat = ""
+      ipc.send("getWilayahParent", wilayahId)
+      ipc.once("getWilayahParentResult", async (event, result) => {
+        grantParent = result.parent
+        tingkat = result.tingkat
+        this.currentWil.tingkat = result.tingkat
+        this.currentWil.wilayah_id = result.wilayah_id
+        this.currentWil.parent = result.parent
+        this.currentWil.nama = result.nama
+      })
 
-        await axios({
-          url: apiLogin,
-          method: "post",
-          data: {
-            query: `
-                {
-                  authenticate(
-                      username : "` + username + `",
-                      password : "` + password + `", 
-                      deviceId:"` + deviceId + `",
-                      version:"` + version + `"
-                      ) {
-                        id,
-                        portal,
-                        username,
-                        role,
-                        phone,
-                        nik,
-                        email,
-                        change,
-                        tps_id,
-                        wilayah_id,
-                        domain,
-                        avatar,
-                        jwt,
-                        countKec,
-                        countKel,
-                        countTps,
-                        updateApp,
-                        updateLink,
-                        updateVersion
-                    }
-                }
-                `
-          }
-        }).then((result) => {
-          if (result.data.data.authenticate) {
-            const userData = result.data.data.authenticate
-            localStorage.setItem("currentUser", JSON.stringify(userData))
-            localStorage.setItem("jwt", JSON.stringify(userData.jwt))
-            localStorage.setItem("lastUsed", JSON.stringify(Date.now()))
-            console.log("signed")
-            return "SIGNED"
-          } else {
-            localStorage.removeItem("currentUser")
-            return "UNSIGNED"
-          }
+      ipc.send("getWilayahChild", wilayahId)
+      ipc.once("getWilayahChildResult", async (event, result) => {
+        let totalTps = 0
+        let childStat = result.map((data) => {
+          const container = {}
+          container["Wilayah"] = {nama: "" + data.nama, wilayah_id: data.wilayah_id}
+          container["Nama"] = data.nama
+          container["Jumlah"] = data.countTps
+          container["Tingkat"] = data.tingkat
+          totalTps = totalTps + data.countTps
+          return container
         })
+
+        // tambah awal
+        const awal = {}
+        if (tingkat < 3) {
+          awal["Wilayah"] = {nama: "parent", wilayah_id: wilayahId}
+        } else {
+          awal["Wilayah"] = {nama: "parent", wilayah_id: grantParent}
+        }
+
+        awal["Jumlah"] = ""
+        childStat.unshift(awal)
+
+        // tambah akhir
+        const akhir = {}
+        akhir["Wilayah"] = {nama: "TOTAL", wilayah_id: ""}
+        akhir["Jumlah"] = totalTps
+        childStat.push(akhir)
+
+        this.data = childStat
+        this.dataReady = true
       })
     }
   },
   mounted () {
-    console.log("mounted")
+
+  },
+  created () {
+    this.getWilayah(this.wilayahId)
+  },
+  watch: {
+    // script goes here
   }
 }
 </script>
+<style>
+.hidden_header {
+  display: none;
+}
+a:hover {
+  text-decoration: none !important;
+}
+</style>

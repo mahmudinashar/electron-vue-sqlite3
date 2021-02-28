@@ -4,10 +4,10 @@ import axios from "axios"
 import App from "./App"
 import router from "./router"
 import store from "./store"
-
 import Colxx from "./components/Common/Colxx"
-
 import BootstrapVue from "bootstrap-vue"
+import VueToast from "vue-toast-notification"
+import "./assets/css/vendor/toast.css"
 
 import {
   defaultLocale,
@@ -19,6 +19,7 @@ import VueI18n from "vue-i18n"
 
 Vue.use(VueI18n)
 Vue.use(BootstrapVue)
+Vue.use(VueToast)
 
 const messages = { id: id }
 const locale =
