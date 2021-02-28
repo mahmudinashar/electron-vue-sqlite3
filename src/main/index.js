@@ -76,16 +76,7 @@ function createWindow () {
   ipcMain.on("getWilayahChild", async (event, data) => {
     var result = []
     var rows = []
-    try {
-      rows = await knex
-        .from("wilayah")
-        .select("*")
-        .where("parent", data)
-    } catch (error) {
-      console.error(error)
-    }
-
-    // console.log(rows)
+    rows = await knex.from("wilayah").select("*").where("parent", data)
     const promises = rows.map(async data => {
       const container = {}
       container["wilayah_id"] = data.wilayah_id
@@ -104,9 +95,7 @@ function createWindow () {
         where = { "kelurahan_id": data.wilayah_id }
       }
 
-      let hasil = await knex("tps")
-        .count("id", { as: "count" })
-        .where(where)
+      let hasil = await knex("tps").count("id", { as: "count" }).where(where)
 
       container["countTps"] = hasil[0].count
       result.push(container)

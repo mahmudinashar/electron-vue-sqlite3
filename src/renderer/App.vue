@@ -2,7 +2,10 @@
   <div id="app">
     <vue-topprogress ref="topProgress" color='#ed7117'></vue-topprogress>
 
-    <b-modal size="lg"  id="modalsetting" ref="modalsetting" :title="$t('modals.setting')" dismiss="modal">
+    <b-modal size="lg"  id="modalsetting" ref="modalsetting" dismiss="modal">
+        <template slot="modal-header">
+        <h5 class="modal-title">{{$t('modals.setting')}}</h5>
+        </template>
         <b-container class="bv-example-row">
           <b-row>
             <b-col cols="12">
