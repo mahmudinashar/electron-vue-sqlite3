@@ -1,0 +1,46 @@
+.autosuggest {
+    position: relative;
+}
+
+.autosuggest__results-container {
+    border-radius: $border-radius;
+    z-index: 20;
+    box-shadow: initial;
+    margin-top: -1px;
+    background: $foreground-color;
+    position: absolute;
+    width: 100%;
+    box-sizing: border-box;
+    top: 100%;
+}
+
+.autosuggest__results > ul {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 0;
+}
+
+.autosuggest__results-item {
+    cursor: default;
+    display: block;
+    font-size: inherit;
+    padding: 8px 12px;
+    width: 100%;
+    background: $foreground-color !important;
+    color: $primary-color !important;
+
+    &:hover,
+    &:active {
+        background: lighten($theme-color-1, 10%) !important;
+        color: $foreground-color !important;
+    }
+}
+
+.autosuggest__input-open {
+    border: 1px solid rgba($theme-color-1, 0.6) !important;
+}
+
+.autosuggest__results {
+    border: 1px solid rgba($theme-color-1, 0.6);
+    border-top: initial;
+}

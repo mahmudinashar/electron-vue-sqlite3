@@ -1,5 +1,5 @@
 import Vue from "vue"
-import axios from "axios"
+// import axios from "axios"
 
 import App from "./App"
 import router from "./router"
@@ -15,11 +15,13 @@ import {
 } from "./constants/config"
 
 import id from "./locales/id.json"
+import contentmenu from "v-contextmenu"
 import VueI18n from "vue-i18n"
 
 Vue.use(VueI18n)
 Vue.use(BootstrapVue)
 Vue.use(VueToast)
+Vue.use(contentmenu)
 
 const messages = { id: id }
 const locale =
@@ -38,7 +40,7 @@ const i18n = new VueI18n({
 Vue.component("b-colxx", Colxx)
 
 if (!process.env.IS_WEB) Vue.use(require("vue-electron"))
-Vue.http = Vue.prototype.$http = axios
+// Vue.http = Vue.prototype.$http = axios
 Vue.config.productionTip = false
 
 /* eslint-disable no-new */

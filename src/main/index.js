@@ -15,37 +15,39 @@ import { PrepareDatabase } from "./prepareDatabase"
 let con = new Connection()
 let prepare = new PrepareDatabase()
 let knex = con.connect()
-
-knex.schema.hasTable("setting").then(function (exists) {
+knex.schema.hasTable("setting").then(function(exists) {
   if (!exists) {
     prepare.createTableSetting(knex)
     prepare.createTableWilayah(knex)
     prepare.createTableTps(knex)
+    prepare.createTablePemilih(knex)
   }
 })
 
 if (process.env.NODE_ENV !== "development") {
-  global.__static = require("path").join(__dirname, "/static").replace(/\\/g, "\\\\")
+  global.__static = require("path")
+    .join(__dirname, "/static")
+    .replace(/\\/g, "\\\\")
 } else {
   let contextMenu = require("electron-context-menu")
   contextMenu({
-    prepend: (defaultActions, params, browserWindow) => [
-    ]
+    prepend: (defaultActions, params, browserWindow) => []
   })
 }
 
 let mainWindow
-const winURL = process.env.NODE_ENV === "development"
-  ? "http://localhost:9080"
-  : `file://${__dirname}/index.html`
+const winURL =
+  process.env.NODE_ENV === "development"
+    ? "http://localhost:9080"
+    : `file://${__dirname}/index.html`
 
-function createWindow () {
+function createWindow() {
   mainWindow = new BrowserWindow({
-    height: 750,
+    height: 870,
     useContentSize: true,
     width: 1500,
     minWidth: 1024,
-    minHeight: 550,
+    minHeight: 750,
     resizable: true,
     webPreferences: {
       nodeIntegration: true,
@@ -59,25 +61,28 @@ function createWindow () {
   // +++++++++++++++++++++
   //        ipcMain
   // +++++++++++++++++++++
-  ipcMain.on("getWilayahParent", (event, data) => {
+  ipcMain.on("getWilayah", (event, data) => {
     knex
       .from("wilayah")
       .select("*")
       .where("wilayah_id", data)
       .then((rows) => {
-        mainWindow.webContents.send("getWilayahParentResult", rows[0])
+        mainWindow.webContents.send("getWilayahResult", rows[0])
       })
       .catch((err) => {
-        mainWindow.webContents.send("getWilayahParentResult", err)
+        mainWindow.webContents.send("getWilayahResult", err)
       })
-      .finally(() => { })
+      .finally(() => {})
   })
 
   ipcMain.on("getWilayahChild", async (event, data) => {
     var result = []
     var rows = []
-    rows = await knex.from("wilayah").select("*").where("parent", data)
-    const promises = rows.map(async data => {
+    rows = await knex
+      .from("wilayah")
+      .select("*")
+      .where("parent", data)
+    const promises = rows.map(async (data) => {
       const container = {}
       container["wilayah_id"] = data.wilayah_id
       container["nama"] = data.nama
@@ -86,16 +91,18 @@ function createWindow () {
 
       let where = {}
       if (data.tingkat === 2) {
-        where = { "kabupaten_id": data.wilayah_id }
+        where = { kabupaten_id: data.wilayah_id }
       }
       if (data.tingkat === 3) {
-        where = { "kecamatan_id": data.wilayah_id }
+        where = { kecamatan_id: data.wilayah_id }
       }
       if (data.tingkat === 4) {
-        where = { "kelurahan_id": data.wilayah_id }
+        where = { kelurahan_id: data.wilayah_id }
       }
 
-      let hasil = await knex("tps").count("id", { as: "count" }).where(where)
+      let hasil = await knex("tps")
+        .count("id", { as: "count" })
+        .where(where)
 
       container["countTps"] = hasil[0].count
       result.push(container)
@@ -111,13 +118,12 @@ function createWindow () {
       .select("*")
       .where(data)
       .then((rows) => {
-        // console.log(rows)
         mainWindow.webContents.send("getTpsChildResult", rows)
       })
       .catch((err) => {
         mainWindow.webContents.send("getTpsChildResult", err)
       })
-      .finally(() => { })
+      .finally(() => {})
   })
 
   ipcMain.on("getTpsCount", (event, data) => {
@@ -125,13 +131,12 @@ function createWindow () {
       .count("id", { as: "count" })
       .where(data)
       .then((rows) => {
-        console.log(rows[0])
         mainWindow.webContents.send("getTpsCountResult", rows[0])
       })
       .catch((err) => {
         mainWindow.webContents.send("getTpsCountResult", err)
       })
-      .finally(() => { })
+      .finally(() => {})
   })
 
   ipcMain.on("saveSetting", (event, data) => {
@@ -155,6 +160,105 @@ function createWindow () {
       })
   })
 
+  ipcMain.on("deletePemilih", async (event, data) => {
+    let rows = await knex("pemilih")
+      .where(data)
+      .del()
+    mainWindow.webContents.send("deletePemilihResult", rows + " record deleted")
+  })
+
+  ipcMain.on("updatePemilihByTerm", async (event, data) => {
+    console.log(data)
+    let id = data.id
+    delete data.id
+
+    let rows = await knex("pemilih")
+      .whereIn("id", id)
+      .update(data.term)
+    mainWindow.webContents.send("updatePemilihByTermResult", rows)
+  })
+
+  ipcMain.on("updatePemilihById", async (event, data) => {
+    let id = data.id
+    delete data.id
+    delete data.dp_id
+    delete data.k1
+    delete data.k2
+    delete data.k3
+
+    let rows = await knex("pemilih")
+      .where("id", id)
+      .update(data)
+    mainWindow.webContents.send("updatePemilihByIdResult", rows)
+  })
+
+  ipcMain.on("getPemilihById", async (event, data) => {
+    delete data.sortBy
+    delete data.sortDirection
+    delete data.limit
+    delete data.offset
+
+    let rows = await knex
+      .from("pemilih")
+      .select("*")
+      .where(data)
+    mainWindow.webContents.send("getPemilihByIdResult", rows)
+  })
+
+  ipcMain.on("getPemilih", async (event, data) => {
+    let limit = data.limit
+    let offset = data.offset
+    let sortBy = data.sortBy
+    let sortDirection = data.sortDirection
+
+    delete data.sortBy
+    delete data.sortDirection
+    delete data.limit
+    delete data.offset
+
+    if (isNaN(offset)) {
+      offset = 1
+    }
+
+    if (isNaN(limit)) {
+      offset = 200
+    }
+
+    let rows = await knex
+      .from("pemilih")
+      .select("*")
+      .where(data)
+      .orderBy(sortBy, sortDirection)
+      .limit(limit)
+      .offset(offset)
+    mainWindow.webContents.send("getPemilihResult", rows)
+  })
+
+  ipcMain.on("savePemilih", (event, data) => {
+    var i
+    var j
+    var resArray = []
+    var chunk = 200
+    for (i = 0, j = data.length; i < j; i += chunk) {
+      resArray.push(data.slice(i, i + chunk))
+    }
+
+    var numChunk = Math.ceil(data.length / chunk)
+    for (i = 0, j = numChunk; i < j; i++) {
+      knex("pemilih")
+        .insert(resArray[i])
+        .then()
+        .catch((err) => {
+          mainWindow.webContents.send("savePemilihResult", err)
+        })
+        .finally(() => {})
+    }
+    mainWindow.webContents.send(
+      "savePemilihResult",
+      data.length + " record inserted"
+    )
+  })
+
   ipcMain.on("saveWilayah", (event, data) => {
     knex("wilayah")
       .truncate()
@@ -166,7 +270,10 @@ function createWindow () {
     knex("wilayah")
       .insert(data)
       .then((rows) => {
-        mainWindow.webContents.send("saveWilayahResult", "data wilayah has been saved to database!")
+        mainWindow.webContents.send(
+          "saveWilayahResult",
+          rows + " record inserted"
+        )
       })
       .catch((err) => {
         mainWindow.webContents.send("saveWilayahResult", err)
@@ -202,7 +309,7 @@ function createWindow () {
     }
     mainWindow.webContents.send(
       "saveTpsResult",
-      "data tps has been saved to database!"
+      data.length + " record inserted"
     )
   })
 
@@ -217,7 +324,7 @@ function createWindow () {
       .catch((err) => {
         throw err
       })
-      .finally(() => { })
+      .finally(() => {})
   })
 
   // +++++++++++++++++++++
@@ -231,30 +338,30 @@ function createWindow () {
       label: "File",
       submenu: [
         {
-          label: "Setup (Inisialisasi)",
+          label: "Inisialisasi Project",
           accelerator: "Ctrl+I",
-          click () {
+          click() {
             mainWindow.webContents.send("pageMenu", "setting")
           }
         },
         {
-          label: "Pemutakhiran",
+          label: "Pemutakhiran Data Pemilih",
           accelerator: "Ctrl+P",
-          click () {
-            mainWindow.webContents.send("pageMenu", "home")
+          click() {
+            mainWindow.webContents.send("pageMenu", "coklit")
           }
         },
         {
-          label: "Wilayah",
+          label: "Data Wilayah",
           accelerator: "Ctrl+T",
-          click () {
+          click() {
             mainWindow.webContents.send("pageMenu", "wilayah")
           }
         },
         {
-          label: "About",
+          label: "Tentang",
           accelerator: "Ctrl+B",
-          click () {
+          click() {
             mainWindow.webContents.send("pageMenu", "about")
           }
         },
@@ -262,7 +369,7 @@ function createWindow () {
           type: "separator"
         },
         {
-          label: "Exit",
+          label: "Keluar",
           role: "close"
         }
       ]
@@ -294,8 +401,8 @@ function createWindow () {
       role: "help",
       submenu: [
         {
-          label: "Documentation",
-          click () {
+          label: "Dokumentasi",
+          click() {
             shell.openExternal("https://electron.atom.io/docs/")
           }
         }
@@ -321,7 +428,7 @@ app.on("activate", () => {
 
 app.whenReady().then(() => {
   globalShortcut.register("CommandOrControl+P", () => {
-    mainWindow.webContents.send("pageMenu", "home")
+    mainWindow.webContents.send("pageMenu", "coklit")
   })
 
   globalShortcut.register("CommandOrControl+B", () => {

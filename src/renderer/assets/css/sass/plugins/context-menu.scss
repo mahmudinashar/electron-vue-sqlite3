@@ -1,0 +1,131 @@
+.v-contextmenu {
+    box-shadow: initial;
+    border-radius: $border-radius;
+    background: $input-background;
+    border: 1px solid rgba($primary-color, 0.15);
+    padding: 0.5rem 0;
+    position: absolute;
+    margin: 0;
+    list-style: none;
+    font-size: 14px;
+    white-space: nowrap;
+    cursor: pointer;
+    z-index: 2800;
+    -webkit-tap-highlight-color: transparent;
+
+    .v-contextmenu-item {
+        padding: 0.5rem 1.5rem;
+        background: $input-background;
+        color: $primary-color;
+        cursor: pointer;
+
+        &.v-contextmenu-item--hover {
+            color: $primary-color;
+            text-decoration: none;
+            background-color: $background-color;
+        }
+
+        span {
+            font-family: "Nunito", sans-serif;
+            font-size: 0.8rem;
+            font-weight: 400;
+            margin-left: 0.5rem;
+            line-height: 15px;
+            display: inline-block;
+        }
+    }
+
+    .v-contextmenu-item.v-contextmenu-item--disabled {
+        color: #ccc;
+        cursor: not-allowed;
+    }
+
+    .v-contextmenu-divider {
+        height: 0;
+        margin: 5px 0;
+        border-bottom: 1px solid #e8e8e8;
+    }
+
+    .v-contextmenu-group__menus {
+        padding: 0 5px;
+        margin: 0;
+        list-style: none;
+    }
+
+    .v-contextmenu-group__menus {
+        .v-contextmenu-item {
+            display: inline-block;
+            padding: 5px 9px;
+        }
+    }
+
+    .v-contextmenu-submenu {
+        position: relative;
+
+        .v-contextmenu-submenu__title {
+            margin-right: 10px;
+        }
+
+        .v-contextmenu-submenu__icon {
+            position: absolute;
+            right: 5px;
+        }
+
+        .v-contextmenu-submenu__icon::before {
+            content: "\e622";
+        }
+
+        > .v-contextmenu {
+            position: absolute;
+        }
+        > .v-contextmenu.left {
+            left: 0;
+            transform: translateX(-100%);
+        }
+
+        > .v-contextmenu.right {
+            right: 0;
+            transform: translateX(100%);
+        }
+
+        > .v-contextmenu.top {
+            top: -6px;
+        }
+
+        > .v-contextmenu.bottom {
+            bottom: -6px;
+        }
+    }
+}
+
+.card.v-contextmenu--visible {
+    @include depth(2);
+}
+
+body:not(.no-footer) {
+    .v-contextmenu {
+        transform: translateY(-150px);
+        @include respond-below(xl) {
+            transform: translateY(-130px);
+        }
+
+        @include respond-below(lg) {
+            transform: translateY(-110px);
+        }
+
+        @include respond-below(sm) {
+            transform: translateY(-85px);
+        }
+    }
+}
+
+.rtl {
+    .v-contextmenu {
+        .v-contextmenu-item {
+            span {
+                margin-right: 0.5rem;
+                margin-left: initial;
+            }
+        }
+    }
+}

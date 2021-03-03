@@ -13,16 +13,46 @@
   "modals": {
     "setting": "Setting"
   },
+  "text": {
+    "kelurahan": "Kelurahan",
+    "tps": "Tps",
+    "kecamatan": "Kecamatan"
+  },
   "titles": {
     "tps-header": "Browse TPS",
     "app": "Home",
-    "about": "Tentang"
+    "about": "Tentang",
+    "filter": "Filter",
+    "modal-lookup": "Detail Informasi Pemilih",
+    "modal-saring": "Hapus atau Saring Pemilih"
   },
   "actions": {
+    "coklit": "Coklit",
     "close": "Tutup",
     "new": "Baru",
+    "cancel": "Batal",
+    "sure": "Yakin",
     "save": "Simpan",
     "save-as": "Simpan Baru",
-    "about": "Tentang"
+    "about": "Tentang",
+    "filter": "Filter",
+    "reset": "Reset",
+    "pull": "Unduh Data Server",
+    "push": "Sinkronisasi Data Ke Server",
+    "history": "History",
+    "edit": "Sunting",
+    "info": "Lookup",
+    "aktif": "Aktifkan Pemilih",
+    "saring1": "Saring 1 (Meninggal)",
+    "saring2": "Saring 2 (Ganda)",
+    "saring3": "Saring 3 (Dibawah Umur)",
+    "saring4": "Saring 4 (Pindah Domisili)",
+    "saring5": "Saring 5 (Tidak dikenal)",
+    "saring6": "Saring 6 (TNI)",
+    "saring7": "Saring 7 (POLRI)",
+    "saring8": "Saring 8 (Hilang Ingatan)",
+    "saring9": "Saring 9 (Hak Dicabut)",
+    "saring10": "Saring 10 (Bukan Penduduk Setempat)",
+    "select-all": "Pilih Semua"
   }
 }

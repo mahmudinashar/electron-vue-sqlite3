@@ -1,7 +1,8 @@
-$separator-color-light: #f3f3f3;
+$separator-color-light: #DDDDDD;
 $separator-color: #d7d7d7;
 $background-color: #f8f8f8;
 $foreground-color : white;
+$foreground-modal-right : #ececec;
 $sidebar-color : #cccccc;
 $input-background: white;
 
@@ -42,3 +43,4 @@ $lpLogoPathPinned: "";
 @import "./_mixins.scss";
 @import "./_modify.scss";
 @import "./_electron-vue.scss";
+@import "./_plugins.scss";

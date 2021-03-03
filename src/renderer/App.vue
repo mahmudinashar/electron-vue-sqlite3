@@ -16,7 +16,7 @@
 
             <b-col cols="12">
               <b-form-group label="Password" class="has-top-label">
-                  <b-form-input style="font-size:14px;" v-model="password" type="text" />
+                  <b-form-input style="font-size:14px;" v-model="password" type="password" />
               </b-form-group>
             </b-col>
           </b-row>
@@ -54,8 +54,8 @@
       return {
         title: "Main Application",
         syncHistoryReady: false,
-        username: "",
-        password: "",
+        username: JSON.parse(localStorage.username),
+        password: JSON.parse(localStorage.password),
         isValidJwt: false,
         isInetOn: false,
         lastUsed: "",
@@ -113,7 +113,7 @@
                 const hasil = result.data.data.getWilayahs
                 ipc.send("saveWilayah", hasil)
                 ipc.once("saveWilayahResult", async (event, result) => {
-                  console.log("table wilayah injected!")
+                  console.log(result)
                 })
               } else {
                 console.log(result)
@@ -145,7 +145,7 @@
                 const hasil = result.data.data.getTpss
                 ipc.send("saveTps", hasil)
                 ipc.once("saveTpsResult", async (event, result) => {
-                  console.log("table tps injected!")
+                  console.log(result)
                 })
               } else {
                 console.log(result)
@@ -239,7 +239,7 @@
 
             ipc.send("saveSetting", {"username": this.username, "password": this.password, "wilayah_id": userData.wilayah_id})
 
-            console.log("signed")
+            // console.log("signed")
           } else {
             localStorage.removeItem("currentUser")
           }
@@ -252,8 +252,8 @@
         if (page === "about") {
           this.$router.push({ name: "about-page" })
         }
-        if (page === "home") {
-          this.$router.push({ name: "home-page" })
+        if (page === "coklit") {
+          this.$router.push({ name: "coklit-page" })
         }
         if (page === "setting") {
           this.$refs["modalsetting"].show()

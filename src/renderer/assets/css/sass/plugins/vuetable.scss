@@ -1,0 +1,331 @@
+/* 19.Datatable */
+.vuetable {
+  border: initial;
+
+  .vuetable-body-wrapper {
+    scrollbar-width: thin;
+  }
+
+  .vuetable-body-wrapper::-webkit-scrollbar-track {
+    background-color: transparent !important;
+    border-radius: 5px;
+  }
+
+  .vuetable-body-wrapper:hover {
+    &::-webkit-scrollbar-thumb {
+      background-color: $separator-color !important;
+    }
+  }
+
+  .vuetable-body-wrapper::-webkit-scrollbar {
+    width: 5px;
+    background-color: transparent !important;
+  }
+
+  .vuetable-body-wrapper::-webkit-scrollbar-thumb {
+    border-radius: 6px;
+    background-color: transparent;
+  }
+
+  th.sortable:hover {
+    color: $theme-color-1 !important;
+  }
+
+  thead {
+    th {
+      box-shadow: initial;
+      border: initial;
+      text-align: left;
+      font-weight: 700;
+
+      &.sorted-asc {
+        box-shadow: inset 0 3px 0 0 $theme-color-1;
+      }
+
+      &.sorted-desc {
+        box-shadow: inset 0 -3px 0 0 $theme-color-1;
+      }
+    }
+  }
+
+  tr {
+    td {
+      font-size: 12px;
+      padding-top: 9px;
+      padding-bottom: 0px;
+      color: #222222;
+    }
+
+    th {
+      padding-top: 5px !important;
+      padding-bottom: 10px !important;
+      border: 1px solid #aaa !important;
+      border-bottom: 3px solid #000000 !important;
+      color: #111111;
+    }
+
+    th {
+      padding-bottom: 20px;
+    }
+  }
+
+  tbody {
+    tr {
+      td {
+        border: 1px solid #888888 !important;
+      }
+    }
+
+    tr:last-of-type {
+      td {
+        border-bottom: initial;
+      }
+    }
+  }
+}
+
+.table-divided {
+  border-collapse: separate;
+  border-spacing: 0px 0.6rem;
+  width: 100% !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+
+  td {
+    padding-top: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid $separator-color-light;
+    outline: initial !important;
+    background: $foreground-color;
+  }
+
+  tr:last-of-type td {
+    border-bottom: initial;
+  }
+
+  p,
+  h6 {
+    margin-bottom: initial;
+  }
+
+  tbody {
+    > tr[role="row"] > td:first-child:before,
+    > tr[role="row"] > th:first-child:before {
+      top: unset;
+      box-shadow: initial;
+      background-color: $theme-color-1;
+      font-size: 10px !important;
+    }
+
+    tr {
+      @include depth(1);
+
+      &.selected {
+        @include depth(2);
+      }
+
+      &.child {
+        td {
+          padding: 0.75rem 2rem;
+
+          li {
+            padding: 0 !important;
+          }
+        }
+      }
+    }
+  }
+
+  td,
+  th {
+    padding: 1.5rem;
+    border: initial;
+  }
+
+  th.empty {
+    &:before,
+    &:after {
+      content: "";
+    }
+  }
+
+  .itemCheck {
+    text-align: right;
+    pointer-events: none;
+  }
+}
+
+.order-with-arrow {
+  thead {
+    th {
+      padding-top: 0.6em;
+      padding-bottom: 0.6em;
+      border: initial;
+
+      &.sorted-asc {
+        box-shadow: initial !important;
+      }
+
+      &.sorted-desc {
+        box-shadow: initial !important;
+      }
+
+      &.sortable {
+        // padding-left: 25px;
+      }
+    }
+
+    .sortable,
+    .sorted-asc,
+    .sorted-desc,
+    .sorted-asc_disabled,
+    .sorted-desc_disabled {
+      cursor: pointer;
+      position: relative;
+    }
+
+    .sortable:before,
+    .sortable:after,
+    .sorted-asc:before,
+    .sorted-asc:after,
+    .sorted-desc:before,
+    .sorted-desc:after,
+    .sorted-asc_disabled:before,
+    .sorted-asc_disabled:after,
+    .sorted-desc_disabled:before,
+    .sorted-desc_disabled:after {
+      position: absolute;
+      top: 0.4em;
+      display: block;
+      opacity: 0.3;
+    }
+
+    .sorted-asc:before,
+    .sorted-desc:after {
+      opacity: 1;
+    }
+
+    .sortable:before,
+    .sorted-asc:before,
+    .sorted-desc:before,
+    .sorted-asc_disabled:before,
+    .sorted-desc_disabled:before {
+      right: 1em;
+      content: "\2191";
+    }
+
+    .sortable:after,
+    .sorted-asc:after,
+    .sorted-desc:after,
+    .sorted-asc_disabled:after,
+    .sorted-desc_disabled:after {
+      right: 0.5em;
+      content: "\2193";
+    }
+  }
+}
+
+.rounded {
+  .table-divided {
+    tr {
+      border-radius: $border-radius;
+    }
+
+    td {
+      border-radius: initial;
+
+      &:first-child {
+        border-top-left-radius: $border-radius;
+        border-bottom-left-radius: $border-radius;
+      }
+
+      &:last-child {
+        border-top-right-radius: $border-radius;
+        border-bottom-right-radius: $border-radius;
+      }
+    }
+  }
+}
+
+.rtl {
+  .rounded {
+    .table-divided {
+      &table {
+        td {
+          border-radius: initial;
+
+          &:first-child {
+            border-top-right-radius: $border-radius;
+            border-bottom-right-radius: $border-radius;
+          }
+
+          &:last-child {
+            border-top-left-radius: $border-radius;
+            border-bottom-left-radius: $border-radius;
+          }
+        }
+      }
+    }
+  }
+}
+
+.responsive-table {
+  @media only screen and (max-width: 800px) {
+    /* Force table to not be like tables anymore */
+    table,
+    thead,
+    tbody,
+    th,
+    td,
+    tr {
+      display: block;
+    }
+
+    /* Hide table headers (but not display: none;, for accessibility) */
+    thead tr {
+      position: absolute;
+      top: -9999px;
+      left: -9999px;
+    }
+
+    tr {
+      border: 1px solid #ccc;
+    }
+
+    td {
+      /* Behave  like a "row" */
+      border: none;
+      border-bottom: 1px solid #eee;
+      position: relative;
+      padding-left: 50%;
+      white-space: normal;
+      text-align: left;
+    }
+
+    td:before {
+      /* Now like a table header */
+      position: absolute;
+      /* Top/left values mimic padding */
+      top: 6px;
+      left: 6px;
+      width: 45%;
+      padding-right: 10px;
+      white-space: nowrap;
+      text-align: left;
+      font-weight: bold;
+    }
+
+    /*
+        Label the data
+        */
+    td:before {
+      content: attr(data-title);
+    }
+  }
+}

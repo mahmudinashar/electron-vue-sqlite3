@@ -21,7 +21,7 @@
 }
 
 .modal .modal-footer {
-    border-top: 1px solid #FFF !important;
+    border-top: 1px solid #FFF;
 }
 
 button {
@@ -38,6 +38,7 @@ button {
 }
 
 #footer {
+    z-index: 100;
     border-top: 1px solid #CCC;
     height: 30px;
     color: #888888;
