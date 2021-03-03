@@ -18,6 +18,13 @@
             ></span
             >{{ $t("actions.filter") }}</b-button
           >
+          <b-button @click="reset()" class="inactive-botton" size="sm"
+            ><span
+              class="simple-icon-fire"
+              style="margin-right:10px;margin-left:-2px"
+            ></span
+            >{{ $t("actions.reset") }}</b-button
+          >
         </b-col>
         <b-col cols="4">
           <center>
@@ -405,32 +412,38 @@
           </b-row>
 
           <b-form-group label="Nama" class="has-top-label">
-            <b-form-input v-model="filterNama"></b-form-input>
+            <b-form-input v-model="filter.nama"></b-form-input>
           </b-form-group>
 
           <b-row>
             <b-col cols="6">
               <b-form-group label="NIK" class="has-top-label">
-                <b-form-input v-model="filterNik"></b-form-input>
+                <b-form-input v-model="filter.nik"></b-form-input>
               </b-form-group>
             </b-col>
             <b-col cols="6">
               <b-form-group label="NKK" class="has-top-label">
-                <b-form-input v-model="filterNkk"></b-form-input>
+                <b-form-input v-model="filter.nkk"></b-form-input>
               </b-form-group>
             </b-col>
           </b-row>
-          <b-form-group label="Tanggal Lahir">
+          <b-form-group
+            label="Tanggal Lahir"
+            style="color:rgba(58, 58, 58, 0.7);font-weight: 600;font-size: 94%;"
+          >
             <datepicker
               :bootstrap-styling="true"
               label="Tanggal Lahir"
-              v-model="filterTanggalLahir"
+              v-model="filter.tanggalLahir"
             ></datepicker>
           </b-form-group>
-          <b-form-group label="Umur">
+          <b-form-group
+            label="Umur"
+            style="color:rgba(58, 58, 58, 0.7);font-weight: 600;font-size: 94%;"
+          >
             <vue-slider
               ref="slider"
-              v-model="sliderUmurValue"
+              v-model="filter.umur"
               tooltip-dir="['bottom']"
               :piecewise="true"
               :data="sliderUmurData"
@@ -442,32 +455,35 @@
               <b-form-group label="Kelamin" class="has-top-label">
                 <v-select
                   :options="kode_jenis_kelamin"
-                  v-model="filterKelamin"
+                  v-model="filter.kelamin"
                 />
               </b-form-group>
             </b-col>
 
             <b-col cols="4">
               <b-form-group label="Kawin" class="has-top-label">
-                <v-select :options="kode_kawin" v-model="filterKawin" />
+                <v-select :options="kode_kawin" v-model="filter.kawin" />
               </b-form-group>
             </b-col>
 
             <b-col cols="4">
               <b-form-group label="Saring" class="has-top-label">
-                <v-select :options="kode_saring" v-model="filterSaringanId" />
+                <v-select :options="kode_saring" v-model="filter.saringan_id" />
               </b-form-group>
             </b-col>
           </b-row>
           <b-row>
             <b-col cols="4">
               <b-form-group label="Disabilitas" class="has-top-label">
-                <v-select :options="kode_disabilitas" v-model="filterDifabel" />
+                <v-select
+                  :options="kode_disabilitas"
+                  v-model="filter.difabel"
+                />
               </b-form-group>
             </b-col>
             <b-col cols="4">
               <b-form-group label="KTP-el" class="has-top-label">
-                <v-select :options="kode_ektp" v-model="filterEktp" />
+                <v-select :options="kode_ektp" v-model="filter.ektp" />
               </b-form-group>
             </b-col>
 
@@ -475,22 +491,38 @@
               <b-form-group label="Sumber" class="has-top-label">
                 <v-select
                   :options="kode_sumberdata"
-                  v-model="filterSumberdata"
+                  v-model="filter.sumberdata"
                 />
               </b-form-group>
             </b-col>
           </b-row>
 
-          <b-form-group label="Status Upload" class="has-top-label">
-            <v-select :options="kode_sts_upd" v-model="filterStsUpd" />
+          <b-form-group label="Alamat" class="has-top-label">
+            <b-form-input v-model="filter.alamat"></b-form-input>
           </b-form-group>
+
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              value=""
+              id="defaultCheck1"
+              v-model="filter.synced"
+            />
+            <label class="form-check-label" for="defaultCheck1">
+              <span
+                style="color:rgba(58, 58, 58, 0.7);font-weight: 600;font-size: 94%;"
+                >Status data <i>Synced</i> ?</span
+              >
+            </label>
+          </div>
         </b-form>
 
         <template slot="modal-footer">
           <b-button variant="primary" size="sm" @click="reset()">{{
             $t("actions.reset")
           }}</b-button>
-          <b-button variant="secondary" size="sm" @click="filter()">{{
+          <b-button variant="secondary" size="sm" @click="filterFunc()">{{
             $t("actions.filter")
           }}</b-button>
         </template>
@@ -513,7 +545,6 @@
         @vuetable:pagination-data="onPaginationData"
         @vuetable:row-clicked="rowClicked"
         @vuetable:cell-rightclicked="rightClicked"
-        @vuetable:row-dblclicked="onRowDoubleClicked"
       >
         <template slot="actions" slot-scope="props">
           <b-form-checkbox
@@ -630,9 +661,9 @@ export default {
   data() {
     return {
       title: "CoklitPage",
-      kode_sts_upd: ["synced", "new", "edit"],
+      synced: ["true", "false"],
       kode_disabilitas: ["0", "1", "2", "3", "4", "5"],
-      kode_saring: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+      kode_saring: ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"],
       sliderUmurData: [
         0,
         10,
@@ -653,7 +684,22 @@ export default {
         85,
         80
       ],
-      sliderUmurValue: [20, 35],
+      direction: "rtl",
+      filter: {
+        nama: "",
+        nik: "",
+        nkk: "",
+        tanggalLahir: "",
+        umur: [35, 50],
+        kelamin: "",
+        kawin: "",
+        saringan_id: "",
+        difabel: "",
+        ektp: "",
+        sumberdata: "",
+        synced: "",
+        alamat: ""
+      },
       kode_sumberdata: ["dpt", "coklit", "masyarakat", "import", "baru"],
       kode_ektp: ["b", "s", "k"],
       kode_jenis_kelamin: ["L", "P"],
@@ -769,10 +815,31 @@ export default {
   },
   methods: {
     reset() {
-      this.selectedKecamatan = ""
-      this.selectedKelurahan = ""
-      this.selectedTps = ""
+      this.filter.nama = ""
+      this.filter.nik = ""
+      this.filter.nkk = ""
+      this.filter.tanggalLahir = ""
+      this.filter.kelamin = ""
+      this.filter.kawin = ""
+      this.filter.saringan_id = ""
+      this.filter.difabel = ""
+      this.filter.ektp = ""
+      this.filter.sumberdata = ""
+      this.filter.synced = ""
+      this.filter.alamat = ""
+      this.filter.umur = [35, 50]
+
+      this.filterQuery = {}
+      this.currentWil.workinglevel = "kabupaten"
+      this.currentWil.workingspace = this.username.toUpperCase()
+      this.currentWil.id = this.wilayahId
+
+      this.onChangePage()
       this.getWilayah(3, this.wilayahId)
+      this.$refs["modalright"].hide()
+      this.$nextTick(() => {
+        this.$refs.vuetable.reload()
+      })
     },
     hideModal(refname) {
       this.$refs[refname].hide()
@@ -789,30 +856,22 @@ export default {
         this.curPage = page
       }
 
-      let paramObj = {}
-      let offset = (this.curPage - 1) * this.perPage + 1
+      let offset = (this.curPage - 1) * this.perPage
 
-      if (this.currentWil.workinglevel === "kelurahan") {
-        paramObj.kel_id = this.currentWil.id
-      }
-      if (this.currentWil.workinglevel === "kecamatan") {
-        paramObj.kec_id = this.currentWil.id
-      }
+      this.filterQuery.limit = this.perPage
+      this.filterQuery.offset = offset
 
-      paramObj.limit = this.perPage
-      paramObj.offset = offset
-
-      this.filterQuery = paramObj
       this.$nextTick(() => {
         this.$refs.vuetable.reload()
       })
     },
-    filter() {
+    filterFunc() {
       this.$refs["modalright"].hide()
       if (this.selectedKecamatan.value) {
         this.currentWil.workinglevel = "kecamatan"
         this.currentWil.workingspace = this.selectedKecamatan.label
         this.currentWil.id = this.selectedKecamatan.value
+        this.filterQuery.kec_id = this.selectedKecamatan.value
       }
 
       if (this.selectedKelurahan.value) {
@@ -820,6 +879,7 @@ export default {
         this.currentWil.workingspace =
           this.selectedKecamatan.label + " ⇌ " + this.selectedKelurahan.label
         this.currentWil.id = this.selectedKelurahan.value
+        this.filterQuery.kel_id = this.selectedKelurahan.value
       }
 
       if (this.selectedTps.value) {
@@ -828,11 +888,62 @@ export default {
           this.selectedKecamatan.label +
           " ⇌ " +
           this.selectedKelurahan.label +
-          ":" +
+          " ⇌ " +
           this.selectedTps.label
         this.currentWil.id = this.selectedTps.value
+        this.filterQuery.kel_id = this.selectedKelurahan.value
+        this.filterQuery.tps_id = this.selectedTps.value
       }
-      this.onChangePage(1)
+
+      if (this.filter.nama !== "") {
+        this.filterQuery.nama = this.filter.nama.trim()
+      }
+      if (this.filter.nik !== "") {
+        this.filterQuery.nik = this.filter.nik.trim()
+      }
+      if (this.filter.nkk !== "") {
+        this.filterQuery.nik = this.filter.nkk.trim()
+      }
+      if (this.filter.tanggalLahir !== "") {
+        this.filterQuery.tanggal_lahir = this.filter.tanggalLahir.trim()
+      }
+      if (this.filter.kelamin !== "") {
+        this.filterQuery.kelamin = this.filter.kelamin.trim()
+      }
+      if (this.filter.kawin !== "") {
+        this.filterQuery.kawin = this.filter.kawin.trim()
+      }
+      if (this.filter.difabel !== "") {
+        this.filterQuery.difabel = this.filter.difabel.trim()
+      }
+      if (this.filter.ektp !== "") {
+        this.filterQuery.ektp = this.filter.ektp.trim()
+      }
+      if (this.filter.sumberdata !== "") {
+        this.filterQuery.sumberdata = this.filter.sumberdata.trim()
+      }
+      if (this.filter.alamat !== "") {
+        this.filterQuery.alamat = this.filter.alamat.trim()
+      }
+
+      if (this.filter.synced === true) {
+        this.filterQuery.synced = true
+      } else {
+        this.filterQuery.synced = false
+      }
+
+      if (this.filter.saringan_id !== "") {
+        this.filterQuery.saringan_id = parseInt(this.filter.saringan_id)
+      }
+
+      this.filterQuery.limit = this.perPage
+      this.filterQuery.offset = 0
+      this.filterQuery.term = "filterSearch"
+      delete this.filterQuery.id
+
+      this.$nextTick(() => {
+        this.$refs.vuetable.reload()
+      })
     },
     routeTo(page) {
       if (page === "about-page") {
@@ -963,42 +1074,29 @@ export default {
         filter.id = id
         ipc.send("getPemilihById", filter)
         ipc.once("getPemilihByIdResult", async (event, result) => {
-          console.log(result[0])
           this.detailready = true
           this.formDetail = result[0]
         })
         this.$refs["modallookup"].show()
       }
     },
-    onRowDoubleClicked(dataItem, index) {
-      let id = dataItem.id
-      let filter = this.filterQuery
-      filter.id = id
-      ipc.send("getPemilihById", filter)
-      ipc.once("getPemilihByIdResult", async (event, result) => {
-        console.log(result[0])
-        this.detailready = true
-        this.formDetail = result[0]
-      })
-      this.$refs["modallookup"].show()
-    },
     saringSelected(kode) {
       let data = {}
       data.id = this.selectedItems
-      data.term = { saringan_id: kode }
+      data.term = { saringan_id: kode, synced: true }
 
       ipc.send("updatePemilihByTerm", data)
       ipc.once("updatePemilihByTermResult", async (event, result) => {
-        console.log(result)
         this.hideModal("modallookup")
         this.onChangePage()
       })
     },
     async updateRecord() {
       this.$v.formDetail.$touch()
-      ipc.send("updatePemilihById", this.formDetail)
+      let data = this.formDetail
+      data.synced = true
+      ipc.send("updatePemilihById", data)
       ipc.once("updatePemilihByIdResult", async (event, result) => {
-        console.log(result)
         this.hideModal("modallookup")
         this.onChangePage()
       })
@@ -1203,7 +1301,6 @@ export default {
               let dataToInsert = hasil.map((data) => {
                 const container = data
                 container.dp_id = parseInt(container.id)
-                container.sts_upd = "synced"
                 delete container.id
                 return container
               })
@@ -1216,6 +1313,7 @@ export default {
                     position: "bottom-right",
                     duration: 3000
                   })
+                  this.onChangePage()
                 })
               })
 
@@ -1248,28 +1346,6 @@ export default {
         this.selectedTps = ""
       })
     },
-    async getPemilih(wilayahId, curPage) {
-      let paramObj = {}
-      let tingkat = 0
-      let offset = curPage * this.perPage + 1
-
-      ipc.send("getWilayah", wilayahId)
-      ipc.once("getWilayahResult", async (event, result) => {
-        tingkat = result.tingkat
-      })
-
-      if (tingkat === 3) {
-        paramObj.kec_id = parseInt(wilayahId)
-      }
-      if (tingkat === 4) {
-        paramObj.kel_id = parseInt(wilayahId)
-      }
-
-      paramObj.limit = this.perPage
-      paramObj.offset = offset
-
-      this.filterQuery = paramObj
-    },
     async getWilayah(tingkat, wilayahId) {
       ipc.send("getWilayahChild", wilayahId)
       ipc.once("getWilayahChildResult", async (event, result) => {
@@ -1296,7 +1372,7 @@ export default {
   },
   created() {
     this.getWilayah(3, this.wilayahId)
-    this.getPemilih(this.wilayahId, 0)
+    this.filterQuery.limit = this.perPage
     this.currentWil.workinglevel = "kabupaten"
     this.currentWil.workingspace = this.username.toUpperCase()
     this.currentWil.id = this.wilayahId

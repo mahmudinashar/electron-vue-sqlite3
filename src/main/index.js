@@ -15,6 +15,7 @@ import { PrepareDatabase } from "./prepareDatabase"
 let con = new Connection()
 let prepare = new PrepareDatabase()
 let knex = con.connect()
+
 knex.schema.hasTable("setting").then(function(exists) {
   if (!exists) {
     prepare.createTableSetting(knex)
@@ -168,7 +169,6 @@ function createWindow() {
   })
 
   ipcMain.on("updatePemilihByTerm", async (event, data) => {
-    console.log(data)
     let id = data.id
     delete data.id
 
@@ -206,32 +206,105 @@ function createWindow() {
   })
 
   ipcMain.on("getPemilih", async (event, data) => {
+    console.log(data)
+    let term = data.term
     let limit = data.limit
     let offset = data.offset
     let sortBy = data.sortBy
     let sortDirection = data.sortDirection
 
+    delete data.term
     delete data.sortBy
     delete data.sortDirection
     delete data.limit
     delete data.offset
 
     if (isNaN(offset)) {
-      offset = 1
+      offset = 0
     }
 
     if (isNaN(limit)) {
-      offset = 200
+      offset = 22
     }
+    let where = ""
+    let inc = 1
+    let rows = []
+    if (term === "filterSearch") {
+      if (data.nama) {
+        if (inc === 1) {
+          where = where + "nama like '%" + data.nama + "%'"
+        } else {
+          where = where + "AND nama like '%" + data.nama + "%'"
+        }
+        delete data.nama
+        inc++
+      }
 
-    let rows = await knex
-      .from("pemilih")
-      .select("*")
-      .where(data)
-      .orderBy(sortBy, sortDirection)
-      .limit(limit)
-      .offset(offset)
+      if (data.nik) {
+        if (inc === 1) {
+          where = where + "nik like '%" + data.nik + "%'"
+        } else {
+          where = where + "AND nik like '%" + data.nik + "%'"
+        }
+        delete data.nik
+        inc++
+      }
+
+      if (data.nkk) {
+        if (inc === 1) {
+          where = where + "nkk like '%" + data.nkk + "%'"
+        } else {
+          where = where + "AND nkk like '%" + data.nkk + "%'"
+        }
+        delete data.nkk
+        inc++
+      }
+
+      if (data.alamat) {
+        if (inc === 1) {
+          where = where + "alamat like '%" + data.alamat + "%'"
+        } else {
+          where = where + "AND alamat like '%" + data.alamat + "%'"
+        }
+        delete data.alamat
+        inc++
+      }
+
+      rows = await knex
+        .from("pemilih")
+        .select("*")
+        .where(data)
+        .whereRaw(where)
+        .orderBy(sortBy, sortDirection)
+        .limit(limit)
+        .offset(offset)
+    } else {
+      rows = await knex
+        .from("pemilih")
+        .select("*")
+        .where(data)
+        .orderBy(sortBy, sortDirection)
+        .limit(limit)
+        .offset(offset)
+    }
     mainWindow.webContents.send("getPemilihResult", rows)
+  })
+
+  ipcMain.on("getPemilihCount", (event, data) => {
+    delete data.sortBy
+    delete data.sortDirection
+    delete data.limit
+    delete data.offset
+    knex("pemilih")
+      .count("id", { as: "count" })
+      .where(data)
+      .then((rows) => {
+        mainWindow.webContents.send("getPemilihCountResult", rows[0])
+      })
+      .catch((err) => {
+        mainWindow.webContents.send("getPemilihCountResult", err)
+      })
+      .finally(() => {})
   })
 
   ipcMain.on("savePemilih", (event, data) => {

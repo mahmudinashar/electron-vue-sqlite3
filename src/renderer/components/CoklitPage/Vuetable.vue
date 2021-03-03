@@ -165,14 +165,21 @@
                 <td
                   v-if="extractName(field.name) === '__slot'"
                   :key="fieldIndex"
-                  :class="['vuetable-slot', field.dataClass]"
+                  style="text-align:center;line-height: 30px;padding-top: 5px !important;"
                 >
-                  <slot
-                    :name="extractArgs(field.name)"
-                    :row-data="item"
-                    :row-index="itemIndex"
-                    :row-field="field.sortField"
-                  ></slot>
+                  <span
+                    v-if="item.synced"
+                    class="simple-icon-refresh"
+                    style="margin-left:-7px !important;"
+                  ></span>
+                  <span v-else>
+                    <slot
+                      :name="extractArgs(field.name)"
+                      :row-data="item"
+                      :row-index="itemIndex"
+                      :row-field="field.sortField"
+                    ></slot>
+                  </span>
                 </td>
               </template>
               <template v-else>
@@ -251,16 +258,21 @@
                 <td
                   v-if="extractName(field.name) === '__slot'"
                   :key="fieldIndex"
-                  :class="['vuetable-slot', field.dataClass]"
+                  style="text-align:center;line-height: 30px;padding-top: 5px !important;"
                 >
-                  <div style="margin-bottom:1px">
+                  <span
+                    v-if="item.synced"
+                    class="simple-icon-refresh"
+                    style="margin-left:-7px"
+                  ></span>
+                  <span v-else>
                     <slot
                       :name="extractArgs(field.name)"
                       :row-data="item"
                       :row-index="itemIndex"
                       :row-field="field.sortField"
                     ></slot>
-                  </div>
+                  </span>
                 </td>
               </template>
               <template v-else>
@@ -516,14 +528,6 @@ export default {
           width: "0.1%"
         },
         {
-          name: "sts_upd",
-          sortField: "sts_upd",
-          title: "SYNC",
-          titleClass: "center aligned text-center",
-          dataClass: "center aligned text-center",
-          width: "0.4%"
-        },
-        {
           name: "nik",
           sortField: "nik",
           title: "NIK",
@@ -729,7 +733,7 @@ export default {
 
     normalizeFields() {
       if (typeof this.fields === "undefined") {
-        this.warn("You need to provide \"fields\" prop.")
+        console.log("You need to provide")
         return
       }
 
@@ -886,17 +890,28 @@ export default {
 
       let curPage = this.curPage
       let perPage = this.perPage
-      ipc.send("getPemilih", filter)
-      ipc.once("getPemilihResult", async (event, result) => {
-        this.tableData = result
-        this.tablePagination = this.makePagination(200, perPage, curPage)
-        this.tablePagination.data = result
-        this.fireEvent("load-success", result)
-        this.$nextTick(function() {
-          this.fixHeader()
-          this.fireEvent("pagination-data", this.tablePagination)
-          this.fireEvent("loaded")
-        })
+
+      ipc.send("getPemilihCount", filter)
+      ipc.once("getPemilihCountResult", async (event, result) => {
+        let countAll = result.count
+        if (result.count !== 0) {
+          ipc.send("getPemilih", filter)
+          ipc.once("getPemilihResult", async (event, result) => {
+            this.tableData = result
+            this.tablePagination = this.makePagination(
+              countAll,
+              perPage,
+              curPage
+            )
+            this.tablePagination.data = result
+            this.fireEvent("load-success", result)
+            this.$nextTick(function() {
+              this.fixHeader()
+              this.fireEvent("pagination-data", this.tablePagination)
+              this.fireEvent("loaded")
+            })
+          })
+        }
       })
     },
 
@@ -910,13 +925,8 @@ export default {
         null
       )
       if (this.tablePagination === null) {
-        this.warn(
-          "vuetable: pagination-path \"" +
-            this.paginationPath +
-            "\" not found. " +
-            "It looks like the data returned from the sever does not have pagination information " +
-            "or you may have set it incorrectly.\n" +
-            "You can explicitly suppress this warning by setting pagination-path=\"\"."
+        console.log(
+          "You can explicitly suppress this warning by setting pagination-path="
         )
       }
 
@@ -1220,11 +1230,7 @@ export default {
       let idColumn = this.trackBy
 
       if (dataItem[idColumn] === undefined) {
-        this.warn(
-          "__checkbox field: The \"" +
-            this.trackBy +
-            "\" field does not exist! Make sure the field you specify in \"track-by\" prop does exist."
-        )
+        console.log("field does not exist! Make sure the field you specify in")
         return
       }
 
@@ -1414,8 +1420,8 @@ export default {
     },
     onRowClass(dataItem, index) {
       if (this.rowClassCallback !== "") {
-        this.warn(
-          "\"row-class-callback\" prop is deprecated, please use \"row-class\" prop instead."
+        console.log(
+          "row-class-callback prop is deprecated, please use row-class prop instead."
         )
         return
       }
