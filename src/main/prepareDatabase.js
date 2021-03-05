@@ -2,9 +2,7 @@
 
 export class PrepareDatabase {
   async createTableSetting(conn) {
-    let result = await conn.schema.createTableIfNotExists("setting", function(
-      table
-    ) {
+    let result = await conn.schema.createTableIfNotExists("setting", function(table) {
       table.increments()
       table.string("username")
       table.string("password")
@@ -18,9 +16,7 @@ export class PrepareDatabase {
   }
 
   async createTableTps(conn) {
-    let result = await conn.schema.createTableIfNotExists("tps", function(
-      table
-    ) {
+    let result = await conn.schema.createTableIfNotExists("tps", function(table) {
       table.increments()
       table.integer("tps_id")
       table.string("tps_no")
@@ -36,13 +32,12 @@ export class PrepareDatabase {
   }
 
   async createTablePemilih(conn) {
-    let result = await conn.schema.createTableIfNotExists("pemilih", function(
-      table
-    ) {
+    let result = await conn.schema.createTableIfNotExists("pemilih", function(table) {
       table.increments()
       table.integer("dp_id")
       table.integer("arsip_id")
       table.boolean("synced").defaultTo(false)
+      table.boolean("invalid").defaultTo(false)
       table.integer("sync_id")
       table.integer("master_id")
       table.string("nik")
@@ -75,23 +70,15 @@ export class PrepareDatabase {
       table.index(["dp_id", "kec_id"], "index_dp_id")
       table.index(["kec_id", "kel_id", "tps_id"], "index_rekap_wilayah")
       table.index(["kec_id", "kel_id", "tps_id", "difabel"], "index_difabel")
-      table.index(
-        ["kec_id", "kel_id", "tps_id", "saringan_id"],
-        "index_saringan_id"
-      )
-      table.index(
-        ["kec_id", "kel_id", "tps_id", "jenis_kelamin"],
-        "index_saringan_id"
-      )
+      table.index(["kec_id", "kel_id", "tps_id", "saringan_id"], "index_saringan_id")
+      table.index(["kec_id", "kel_id", "tps_id", "jenis_kelamin"], "index_saringan_id")
     })
 
     return result
   }
 
   async createTableWilayah(conn) {
-    let result = await conn.schema.createTableIfNotExists("wilayah", function(
-      table
-    ) {
+    let result = await conn.schema.createTableIfNotExists("wilayah", function(table) {
       table.increments()
       table.integer("wilayah_id")
       table.integer("parent")

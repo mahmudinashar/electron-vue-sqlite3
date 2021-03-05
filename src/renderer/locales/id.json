@@ -24,7 +24,10 @@
     "about": "Tentang",
     "filter": "Filter",
     "modal-lookup": "Detail Informasi Pemilih",
-    "modal-saring": "Hapus atau Saring Pemilih"
+    "modal-baru": "Masukan Data Pemilih Baru",
+    "modal-saring": "Hapus atau Saring Pemilih",
+    "modal-warning": "Warning",
+    "modal-warning-sync": "Warning : Error"
   },
   "actions": {
     "coklit": "Coklit",
@@ -37,6 +40,7 @@
     "about": "Tentang",
     "filter": "Filter",
     "reset": "Reset",
+    "resolve": "Resolve",
     "pull": "Unduh Data Server",
     "push": "Sinkronisasi Data Ke Server",
     "history": "History",

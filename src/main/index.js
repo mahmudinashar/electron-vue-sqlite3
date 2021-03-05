@@ -1,13 +1,6 @@
 "use strict"
 
-import {
-  app,
-  BrowserWindow,
-  ipcMain,
-  Menu,
-  shell,
-  globalShortcut
-} from "electron"
+import { app, BrowserWindow, ipcMain, Menu, shell, globalShortcut } from "electron"
 import { Connection } from "./connection"
 import { PrepareDatabase } from "./prepareDatabase"
 
@@ -15,7 +8,6 @@ import { PrepareDatabase } from "./prepareDatabase"
 let con = new Connection()
 let prepare = new PrepareDatabase()
 let knex = con.connect()
-
 knex.schema.hasTable("setting").then(function(exists) {
   if (!exists) {
     prepare.createTableSetting(knex)
@@ -37,10 +29,7 @@ if (process.env.NODE_ENV !== "development") {
 }
 
 let mainWindow
-const winURL =
-  process.env.NODE_ENV === "development"
-    ? "http://localhost:9080"
-    : `file://${__dirname}/index.html`
+const winURL = process.env.NODE_ENV === "development" ? "http://localhost:9080" : `file://${__dirname}/index.html`
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -113,6 +102,31 @@ function createWindow() {
     mainWindow.webContents.send("getWilayahChildResult", result)
   })
 
+  ipcMain.on("getPemilihForSync", async (event, data) => {
+    console.log("ssss")
+    let limit = data.limit
+    delete data.term
+    delete data.sortBy
+    delete data.sortDirection
+    delete data.offset
+    delete data.limit
+
+    knex
+      .from("pemilih")
+      .select("id as local_id", "dp_id as dpid", "sync_id", "kec_id", "kel_id", "tps_id", "nik", "nkk", "nama", "jenis_kelamin", "tanggal_lahir", "tempat_lahir", "kawin", "alamat", "rw", "rt", "dusun", "status", "saringan_id", "sumberdata", "tps")
+      .where(data)
+      .then((rows) => {
+        console.log(rows)
+        mainWindow.webContents.send("getPemilihForSyncResult", rows)
+      })
+      .limit(limit)
+      .catch((err) => {
+        console.log(err)
+        mainWindow.webContents.send("getPemilihForSyncResult", err)
+      })
+      .finally(() => {})
+  })
+
   ipcMain.on("getTpsChild", (event, data) => {
     knex
       .from("tps")
@@ -150,12 +164,7 @@ function createWindow() {
 
     knex("setting")
       .insert(data)
-      .then(
-        mainWindow.webContents.send(
-          "saveSettingResult",
-          "data setting has been saved to database!"
-        )
-      )
+      .then(mainWindow.webContents.send("saveSettingResult", "data setting has been saved to database!"))
       .catch((err) => {
         mainWindow.webContents.send("saveSettingResult", err)
       })
@@ -210,7 +219,12 @@ function createWindow() {
     let term = data.term
     let limit = data.limit
     let offset = data.offset
-    let sortBy = data.sortBy
+    let sortBy = ""
+    if (data.sortBy && data.sortBy !== "id") {
+      sortBy = data.sortBy
+    } else {
+      sortBy = "dp_id"
+    }
     let sortDirection = data.sortDirection
 
     delete data.term
@@ -224,7 +238,7 @@ function createWindow() {
     }
 
     if (isNaN(limit)) {
-      offset = 22
+      offset = 200
     }
     let where = ""
     let inc = 1
@@ -290,46 +304,107 @@ function createWindow() {
     mainWindow.webContents.send("getPemilihResult", rows)
   })
 
-  ipcMain.on("getPemilihCount", (event, data) => {
+  ipcMain.on("getPemilihCount", async (event, data) => {
+    let term = data.term
+    delete data.term
     delete data.sortBy
     delete data.sortDirection
     delete data.limit
     delete data.offset
-    knex("pemilih")
-      .count("id", { as: "count" })
-      .where(data)
-      .then((rows) => {
-        mainWindow.webContents.send("getPemilihCountResult", rows[0])
-      })
-      .catch((err) => {
-        mainWindow.webContents.send("getPemilihCountResult", err)
-      })
-      .finally(() => {})
+
+    let where = ""
+    let inc = 1
+    let rows = []
+    if (term === "filterSearch") {
+      if (data.nama) {
+        if (inc === 1) {
+          where = where + "nama like '%" + data.nama + "%'"
+        } else {
+          where = where + "AND nama like '%" + data.nama + "%'"
+        }
+        delete data.nama
+        inc++
+      }
+
+      if (data.nik) {
+        if (inc === 1) {
+          where = where + "nik like '%" + data.nik + "%'"
+        } else {
+          where = where + "AND nik like '%" + data.nik + "%'"
+        }
+        delete data.nik
+        inc++
+      }
+
+      if (data.nkk) {
+        if (inc === 1) {
+          where = where + "nkk like '%" + data.nkk + "%'"
+        } else {
+          where = where + "AND nkk like '%" + data.nkk + "%'"
+        }
+        delete data.nkk
+        inc++
+      }
+
+      if (data.alamat) {
+        if (inc === 1) {
+          where = where + "alamat like '%" + data.alamat + "%'"
+        } else {
+          where = where + "AND alamat like '%" + data.alamat + "%'"
+        }
+        delete data.alamat
+        inc++
+      }
+      rows = await knex
+        .from("pemilih")
+        .count("id", { as: "count" })
+        .where(data)
+        .whereRaw(where)
+      mainWindow.webContents.send("getPemilihCountResult", rows[0])
+    } else {
+      rows = await knex
+        .from("pemilih")
+        .count("id", { as: "count" })
+        .where(data)
+      mainWindow.webContents.send("getPemilihCountResult", rows[0])
+    }
   })
 
   ipcMain.on("savePemilih", (event, data) => {
-    var i
-    var j
-    var resArray = []
-    var chunk = 200
-    for (i = 0, j = data.length; i < j; i += chunk) {
-      resArray.push(data.slice(i, i + chunk))
-    }
+    // console.log(data)
+    delete data.term
 
-    var numChunk = Math.ceil(data.length / chunk)
-    for (i = 0, j = numChunk; i < j; i++) {
+    if (data.length > 199) {
+      var i
+      var j
+      var resArray = []
+      var chunk = 200
+      for (i = 0, j = data.length; i < j; i += chunk) {
+        resArray.push(data.slice(i, i + chunk))
+      }
+
+      var numChunk = Math.ceil(data.length / chunk)
+      for (i = 0, j = numChunk; i < j; i++) {
+        knex("pemilih")
+          .insert(resArray[i])
+          .then()
+          .catch((err) => {
+            mainWindow.webContents.send("savePemilihResult", err)
+          })
+          .finally(() => {})
+      }
+      mainWindow.webContents.send("savePemilihResult", data.length + " record inserted")
+    } else {
       knex("pemilih")
-        .insert(resArray[i])
-        .then()
+        .insert(data)
+        .then((wyz) => {
+          mainWindow.webContents.send("savePemilihResult", "1 record inserted")
+        })
         .catch((err) => {
           mainWindow.webContents.send("savePemilihResult", err)
         })
         .finally(() => {})
     }
-    mainWindow.webContents.send(
-      "savePemilihResult",
-      data.length + " record inserted"
-    )
   })
 
   ipcMain.on("saveWilayah", (event, data) => {
@@ -343,10 +418,7 @@ function createWindow() {
     knex("wilayah")
       .insert(data)
       .then((rows) => {
-        mainWindow.webContents.send(
-          "saveWilayahResult",
-          rows + " record inserted"
-        )
+        mainWindow.webContents.send("saveWilayahResult", rows + " record inserted")
       })
       .catch((err) => {
         mainWindow.webContents.send("saveWilayahResult", err)
@@ -380,10 +452,7 @@ function createWindow() {
         })
         .finally(() => {})
     }
-    mainWindow.webContents.send(
-      "saveTpsResult",
-      data.length + " record inserted"
-    )
+    mainWindow.webContents.send("saveTpsResult", data.length + " record inserted")
   })
 
   ipcMain.on("currentSetting", (event, data) => {
