@@ -53,9 +53,11 @@
     }
   },
   "dependencies": {
+    "@handsontable/vue": "^5.1.0",
     "axios": "^0.18.0",
     "bootstrap-vue": "^2.21.2",
     "electron-context-menu": "^2.4.0",
+    "handsontable": "^8.3.1",
     "jquery": "^3.5.1",
     "knex": "^0.21.17",
     "pg-native": "^3.0.0",

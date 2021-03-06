@@ -19,27 +19,14 @@ const { VueLoaderPlugin } = require("vue-loader")
  * that provide pure *.vue files that need compiling
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/webpack-configurations.html#white-listing-externals
  */
-let whiteListedModules = [
-  "vue",
-  "bootstrap-vue",
-  "vue-slider-component",
-  "vuejs-datepicker",
-  "vuelidate",
-  "vue-toast-notification",
-  "vue-select",
-  "bootstrap"
-]
+let whiteListedModules = ["vue", "bootstrap-vue", "vue-slider-component", "vuejs-datepicker", "vuelidate", "vue-toast-notification", "vue-select", "bootstrap"]
 
 let rendererConfig = {
   devtool: "#cheap-module-eval-source-map",
   entry: {
     renderer: path.join(__dirname, "../src/renderer/main.js")
   },
-  externals: [
-    ...Object.keys(dependencies || {}).filter(
-      (d) => !whiteListedModules.includes(d)
-    )
-  ],
+  externals: [...Object.keys(dependencies || {}).filter((d) => !whiteListedModules.includes(d))],
   module: {
     rules: [
       {
@@ -141,10 +128,7 @@ let rendererConfig = {
         removeAttributeQuotes: true,
         removeComments: true
       },
-      nodeModules:
-        process.env.NODE_ENV !== "production"
-          ? path.resolve(__dirname, "../node_modules")
-          : false
+      nodeModules: process.env.NODE_ENV !== "production" ? path.resolve(__dirname, "../node_modules") : false
     }),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin()

@@ -10,7 +10,7 @@
         </b-col>
         <b-col cols="4">
           <center>
-            <div style="margin-top: 7px">
+            <div style="margin-top: 5px">
               <b>{{ currentWil.workingspace }}</b>
             </div>
           </center>
@@ -767,7 +767,7 @@ export default {
       nik: 0,
       nkk: 0,
       defaultLimit: 200,
-      perPage: 22,
+      perPage: 20,
       curPage: 1,
       filterQuery: {},
       formDetail: {},
@@ -1674,6 +1674,7 @@ export default {
 
     async push() {
       this.$refs.topProgress.start()
+      this.warningAfterSyncStatus = false
       let paramObj = this.filterQuery
       paramObj.limit = 1000
       paramObj.synced = true

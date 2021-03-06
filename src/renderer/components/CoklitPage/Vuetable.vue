@@ -427,6 +427,14 @@ export default {
           width: "0.5%"
         },
         {
+          name: "ektp",
+          sortField: "ektp",
+          title: "KTP-el",
+          titleClass: "center aligned text-center",
+          dataClass: "center aligned text-center",
+          width: "1%"
+        },
+        {
           name: "tps",
           sortField: "tps",
           title: "TPS",

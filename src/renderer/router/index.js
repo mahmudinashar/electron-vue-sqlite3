@@ -11,6 +11,11 @@ export default new Router({
       component: require("@/components/CoklitPage").default
     },
     {
+      path: "/import",
+      name: "import-page",
+      component: require("@/components/ImportPage").default
+    },
+    {
       path: "/wilayah",
       name: "wilayah-page",
       component: require("@/components/WilayahPage").default

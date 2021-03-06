@@ -103,7 +103,6 @@ function createWindow() {
   })
 
   ipcMain.on("getPemilihForSync", async (event, data) => {
-    console.log("ssss")
     let limit = data.limit
     delete data.term
     delete data.sortBy
@@ -370,6 +369,146 @@ function createWindow() {
     }
   })
 
+  ipcMain.on("savePemilihWebgrid", async (event, data) => {
+    let result = {}
+    result.countSuccess = 0
+    result.countError = 0
+
+    let itemError = []
+    let itemSuccess = []
+
+    // let data = [
+    //   {
+    //     kec_id: 42326,
+    //     kel_id: 42327,
+    //     tps_id: 0,
+    //     dp_id: 1468106,
+    //     nkk: "1871070108080008",
+    //     nik: "1871070105540007",
+    //     nama: "MAHMUDI",
+    //     tempat_lahir: "TELUK BETUNG",
+    //     tanggal_lahir: "01|05|1954",
+    //     kawin: "S",
+    //     jenis_kelamin: "L",
+    //     alamat: "JL S RIYADI IV NO 55",
+    //     rt: "001",
+    //     rw: "001",
+    //     difabel: "0",
+    //     ektp: "s",
+    //     saringan_id: 0,
+    //     sumberdata: "dpt",
+    //     tps: 1,
+    //     synced: true,
+    //     status: "baru"
+    //   },
+    //   {
+    //     kec_id: 42326,
+    //     kel_id: 42327,
+    //     tps_id: 0,
+    //     dp_id: 1468106,
+    //     nkk: "1871070108080006",
+    //     nik: "1871070105540006",
+    //     nama: "MAHMUDIv2",
+    //     tempat_lahir: "TELUK BETUNG",
+    //     tanggal_lahir: "01|05|1954",
+    //     kawin: "S",
+    //     jenis_kelamin: "L",
+    //     alamat: "JL S RIYADI IV NO 55",
+    //     rt: "001",
+    //     rw: "001",
+    //     difabel: "0",
+    //     ektp: "s",
+    //     saringan_id: 0,
+    //     sumberdata: "dpt",
+    //     tps: 1,
+    //     synced: true,
+    //     status: "baru"
+    //   }
+    // ]
+
+    const promises = data.map(async (data) => {
+      let tps = data.tps.toString()
+      if (tps.length === 1) {
+        tps = "00" + tps
+      } else {
+        tps = "0" + tps
+      }
+
+      let tpsId = await knex
+        .from("tps")
+        .select("tps_id")
+        .where({ kelurahan_id: data.kel_id, tps_no: tps })
+
+      if (tpsId) {
+        data.tps_id = tpsId[0].tps_id
+      }
+
+      if (data.dp_id) {
+        // bila memiliki dp_id maka update
+
+        let checkGandaNik = await knex
+          .from("pemilih")
+          .count("id", { as: "count" })
+          .where({ nik: data.nik })
+          .whereNot("dp_id", data.nik)
+
+        if (checkGandaNik[0].count > 0) {
+          result.countError = result.countError + 1
+          data.status = "Err : Duplicated NIK"
+          itemError.push(data)
+        } else {
+          try {
+            let update = await knex("pemilih")
+              .whereIn("dp_id", data.id)
+              .update(data)
+
+            if (update) {
+              result.countSuccess = result.countSuccess + 1
+              itemSuccess.push(data)
+            } else {
+              data.status = "Err : unknown error when update database"
+              result.countError = result.countError + 1
+              itemError.push(data)
+            }
+          } catch (err) {
+            result.countError = result.countError + 1
+            data.status = "Err : dpid not exist"
+            itemError.push(data)
+          }
+        }
+      } else {
+        // data fresh
+        let checkGandaNik = await knex
+          .from("pemilih")
+          .count("id", { as: "count" })
+          .where({ nik: data.nik })
+
+        if (checkGandaNik[0].count > 0) {
+          result.countError = result.countError + 1
+          data.status = "Err : Duplicated NIK"
+          itemError.push(data)
+        } else {
+          let insert = await knex("pemilih").insert(data)
+          if (insert) {
+            result.countSuccess = result.countSuccess + 1
+            itemSuccess.push(data)
+          } else {
+            data.status = "Err : unknown error when write database"
+            result.countError = result.countError + 1
+            itemError.push(data)
+          }
+        }
+      }
+    })
+
+    await Promise.all(promises)
+    result.itemError = itemError
+    result.itemSuccess = itemSuccess
+
+    console.log(result)
+    mainWindow.webContents.send("savePemilihWebgridResult", result)
+  })
+
   ipcMain.on("savePemilih", (event, data) => {
     // console.log(data)
     delete data.term
@@ -487,6 +626,13 @@ function createWindow() {
           }
         },
         {
+          label: "Import Webgrid",
+          accelerator: "Ctrl+W",
+          click() {
+            mainWindow.webContents.send("pageMenu", "import")
+          }
+        },
+        {
           label: "Pemutakhiran Data Pemilih",
           accelerator: "Ctrl+P",
           click() {
@@ -579,6 +725,10 @@ app.whenReady().then(() => {
 
   globalShortcut.register("CommandOrControl+I", () => {
     mainWindow.webContents.send("pageMenu", "setting")
+  })
+
+  globalShortcut.register("CommandOrControl+W", () => {
+    mainWindow.webContents.send("pageMenu", "import")
   })
 
   globalShortcut.register("CommandOrControl+T", () => {

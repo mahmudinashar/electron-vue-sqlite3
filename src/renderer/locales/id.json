@@ -27,10 +27,14 @@
     "modal-baru": "Masukan Data Pemilih Baru",
     "modal-saring": "Hapus atau Saring Pemilih",
     "modal-warning": "Warning",
-    "modal-warning-sync": "Warning : Error"
+    "modal-warning-sync": "Warning : Error",
+    "workingspace": "Wilayah Kerja"
   },
   "actions": {
+    "import": "Import",
+    "workingspace": "Wilayah",
     "coklit": "Coklit",
+    "import": "Import",
     "close": "Tutup",
     "new": "Baru",
     "cancel": "Batal",
