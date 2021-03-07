@@ -619,7 +619,7 @@ function createWindow() {
       label: "File",
       submenu: [
         {
-          label: "Inisialisasi Project",
+          label: "Sign In",
           accelerator: "Ctrl+I",
           click() {
             mainWindow.webContents.send("pageMenu", "setting")

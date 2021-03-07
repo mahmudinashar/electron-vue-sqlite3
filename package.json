@@ -10,6 +10,7 @@
     "build:dir": "node .electron-vue/build.js && electron-builder --dir",
     "build:clean": "cross-env BUILD_TARGET=clean node .electron-vue/build.js",
     "build:web": "cross-env BUILD_TARGET=web node .electron-vue/build.js",
+    "build:win32": "cross-env BUILD_TARGET=win32 node .electron-vue/build.js",
     "dev": "node .electron-vue/dev-runner.js --no-sandbox",
     "lint": "eslint --ext .js,.vue -f ./node_modules/eslint-friendly-formatter src",
     "lint:fix": "eslint --ext .js,.vue -f ./node_modules/eslint-friendly-formatter --fix src",
@@ -19,7 +20,7 @@
     "postinstall": "electron-builder install-app-deps"
   },
   "build": {
-    "productName": "electron-vue-sqlite3",
+    "productName": "pdpb",
     "appId": "id.go.kpu.pdpb",
     "directories": {
       "output": "build"
@@ -46,7 +47,8 @@
       "icon": "build/icons/icon.icns"
     },
     "win": {
-      "icon": "build/icons/icon.ico"
+      "icon": "build/icons/icon.ico",
+      "target": "nsis"
     },
     "linux": {
       "icon": "build/icons"

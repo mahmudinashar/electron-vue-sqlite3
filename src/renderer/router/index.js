@@ -6,7 +6,7 @@ Vue.use(Router)
 export default new Router({
   routes: [
     {
-      path: "/",
+      path: "/coklit",
       name: "coklit-page",
       component: require("@/components/CoklitPage").default
     },
@@ -21,7 +21,7 @@ export default new Router({
       component: require("@/components/WilayahPage").default
     },
     {
-      path: "/about",
+      path: "/",
       name: "about-page",
       component: require("@/components/AboutPage").default
     },

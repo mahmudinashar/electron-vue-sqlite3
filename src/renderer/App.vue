@@ -114,10 +114,16 @@ export default {
               const hasil = result.data.data.getWilayahs
               ipc.send("saveWilayah", hasil)
               ipc.once("saveWilayahResult", async (event, result) => {
-                console.log(result)
+                this.$toast.error(result, {
+                  position: "bottom-right",
+                  duration: 3000
+                })
               })
             } else {
-              console.log(result)
+              this.$toast.error(result, {
+                position: "bottom-right",
+                duration: 3000
+              })
             }
           })
 
@@ -146,10 +152,16 @@ export default {
               const hasil = result.data.data.getTpss
               ipc.send("saveTps", hasil)
               ipc.once("saveTpsResult", async (event, result) => {
-                console.log(result)
+                // this.$toast.error(result, {
+                //   position: "bottom-right",
+                //   duration: 3000
+                // })
               })
             } else {
-              console.log(result)
+              // this.$toast.error(result, {
+              //   position: "bottom-right",
+              //   duration: 3000
+              // })
             }
           })
 
@@ -208,7 +220,7 @@ export default {
             `",
                       password : "` +
             password +
-            `", 
+            `",
                       deviceId:"` +
             deviceId +
             `",
@@ -278,13 +290,13 @@ export default {
 
     ipc.send("currentSetting")
     ipc.once("currentSettingResult", async (event, result) => {
-      let username = result[0].username
-      let password = result[0].password
-      let wilayahId = result[0].wilayah_id
-
-      if (username === "") {
+      if (result.length === 0) {
         this.$refs["modalsetting"].show()
       } else {
+        let username = result[0].username
+        let password = result[0].password
+        let wilayahId = result[0].wilayah_id
+
         localStorage.setItem("username", JSON.stringify(username))
         localStorage.setItem("password", JSON.stringify(password))
         localStorage.setItem("wilayah_id", JSON.stringify(wilayahId))

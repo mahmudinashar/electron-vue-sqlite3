@@ -71,7 +71,7 @@ export class PrepareDatabase {
       table.index(["kec_id", "kel_id", "tps_id"], "index_rekap_wilayah")
       table.index(["kec_id", "kel_id", "tps_id", "difabel"], "index_difabel")
       table.index(["kec_id", "kel_id", "tps_id", "saringan_id"], "index_saringan_id")
-      table.index(["kec_id", "kel_id", "tps_id", "jenis_kelamin"], "index_saringan_id")
+      table.index(["kec_id", "kel_id", "tps_id", "jenis_kelamin"], "index_jenis_kelamin")
     })
 
     return result

@@ -1,47 +1,19 @@
 <template>
   <div>
     <div id="header">
-      <b-button size="sm" @click="routeTo('coklit-page')"
-        ><span
-          class="simple-icon-crop"
-          style="margin-right:10px;margin-left:-2px"
-        ></span
-        >{{ $t("actions.coklit") }}</b-button
-      >
+      <b-button size="sm" @click="routeTo('coklit-page')"><span class="simple-icon-crop" style="margin-right:10px;margin-left:-2px"></span>{{ $t("actions.coklit") }}</b-button>
       <div style="float : right">
-        <b-button
-          class="inactive-botton"
-          size="sm"
-          @click="routeTo('wilayah-page')"
-          ><span class="simple-icon-organization" style="color:#FFFFFF;"></span
-        ></b-button>
+        <b-button class="inactive-botton" size="sm" @click="routeTo('wilayah-page')"><span class="simple-icon-organization" style="color:#FFFFFF;"></span></b-button>
       </div>
     </div>
     <div id="main">
       <b-row>
         <b-colxx xl="12" lg="12" md="12">
-          <b-table
-            striped
-            :items="data"
-            :fields="fieldsTable"
-            responsive="xl"
-            v-if="dataReady"
-            thead-class="hidden_header"
-          >
+          <b-table striped :items="data" :fields="fieldsTable" responsive="xl" v-if="dataReady" thead-class="hidden_header">
             <template v-slot:cell(Wilayah)="data">
-              <div
-                v-if="data.value.nama === 'parent'"
-                style="font-weight:bold;font-size: 25px !important;margin-top: -7px;margin-bottom: -7px;"
-              >
+              <div v-if="data.value.nama === 'parent'" style="font-weight:bold;font-size: 25px !important;margin-top: -7px;margin-bottom: -7px;">
                 <b
-                  ><a
-                    style="color:#000000 !important"
-                    v-on:click="
-                      getWilayah(data.value.wilayah_id, data.value.nama)
-                    "
-                    :href="`#` + data.value.wilayah_id"
-                    >{{ currentWil.nama }}</a
-                  ></b
+                  ><a style="color:#000000 !important" v-on:click="getWilayah(data.value.wilayah_id, data.value.nama)" :href="`#` + data.value.wilayah_id">{{ currentWil.nama }}</a></b
                 >
               </div>
               <div v-if="data.value.nama != 'parent'">
@@ -51,14 +23,7 @@
 
                 <div v-if="data.value.nama != 'TOTAL'">
                   <div v-if="data.item.Tingkat == 4">
-                    <a
-                      style="margin-left:20px;color:#444 !important"
-                      v-on:click="
-                        getTps(data.value.wilayah_id, data.value.nama)
-                      "
-                      :href="`#` + data.value.wilayah_id"
-                      >{{ data.value.nama }}</a
-                    >
+                    <a style="margin-left:20px;color:#444 !important" v-on:click="getTps(data.value.wilayah_id, data.value.nama)" :href="`#` + data.value.wilayah_id">{{ data.value.nama }}</a>
                   </div>
                   <div v-else-if="data.item.Tingkat == 5">
                     <div style="margin-left:20px;color:#444 !important">
@@ -66,14 +31,7 @@
                     </div>
                   </div>
                   <div v-else>
-                    <a
-                      style="margin-left:20px;color:#444 !important"
-                      v-on:click="
-                        getWilayah(data.value.wilayah_id, data.value.nama)
-                      "
-                      :href="`#` + data.value.wilayah_id"
-                      >{{ data.value.nama }}</a
-                    >
+                    <a style="margin-left:20px;color:#444 !important" v-on:click="getWilayah(data.value.wilayah_id, data.value.nama)" :href="`#` + data.value.wilayah_id">{{ data.value.nama }}</a>
                   </div>
                 </div>
               </div>
@@ -91,7 +49,7 @@ const ipc = electron.ipcRenderer
 export default {
   components: {},
   name: "wilayah-page",
-  data () {
+  data() {
     return {
       title: "WilayahPage",
       wilayahId: JSON.parse(localStorage.wilayah_id),
@@ -112,7 +70,7 @@ export default {
     }
   },
   methods: {
-    routeTo (page) {
+    routeTo(page) {
       if (page === "about-page") {
         this.$router.push({ name: "about-page" })
       }
@@ -123,7 +81,7 @@ export default {
         this.$router.push({ name: "wilayah-page" })
       }
     },
-    async getTps (wilayahId) {
+    async getTps(wilayahId) {
       this.dataReady = false
       var grantParent = ""
       var tingkat = ""
@@ -174,7 +132,7 @@ export default {
         this.dataReady = true
       })
     },
-    async getWilayah (wilayahId) {
+    async getWilayah(wilayahId) {
       this.dataReady = false
       var grantParent = ""
       var tingkat = ""
@@ -226,12 +184,8 @@ export default {
       })
     }
   },
-  mounted () {},
-  created () {
+  created() {
     this.getWilayah(this.wilayahId)
-  },
-  watch: {
-    // script goes here
   }
 }
 </script>

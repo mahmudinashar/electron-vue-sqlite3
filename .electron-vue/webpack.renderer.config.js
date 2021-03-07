@@ -20,6 +20,7 @@ const { VueLoaderPlugin } = require("vue-loader")
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/webpack-configurations.html#white-listing-externals
  */
 let whiteListedModules = ["vue", "bootstrap-vue", "vue-slider-component", "vuejs-datepicker", "vuelidate", "vue-toast-notification", "vue-select", "bootstrap"]
+// let whiteListedModules = ["vue", "bootstrap-vue", "vue-slider-component", "vuejs-datepicker", "vuelidate", "vue-toast-notification", "vue-select", "vue-select"]
 
 let rendererConfig = {
   devtool: "#cheap-module-eval-source-map",
