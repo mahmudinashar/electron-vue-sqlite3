@@ -6,6 +6,7 @@
   "license": "MIT",
   "main": "./dist/electron/main.js",
   "scripts": {
+    "dist": "electron-builder",
     "build": "node .electron-vue/build.js && electron-builder",
     "build:dir": "node .electron-vue/build.js && electron-builder --dir",
     "build:clean": "cross-env BUILD_TARGET=clean node .electron-vue/build.js",
@@ -48,7 +49,7 @@
     },
     "win": {
       "icon": "build/icons/icon.ico",
-      "target": "nsis"
+      "target": "portable"
     },
     "linux": {
       "icon": "build/icons"

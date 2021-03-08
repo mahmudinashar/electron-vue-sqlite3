@@ -7,6 +7,10 @@ export class PrepareDatabase {
       table.string("username")
       table.string("password")
       table.string("wilayah_id")
+      table.integer("countKec")
+      table.integer("countKel")
+      table.integer("countTps")
+      table.integer("role")
       table.string("event")
       table.timestamp("created_at").defaultTo(conn.fn.now())
       table.index(["wilayah_id", "event"], "index_wil")
@@ -26,6 +30,7 @@ export class PrepareDatabase {
       table.string("tipe")
       table.timestamp("created_at").defaultTo(conn.fn.now())
       table.index(["kecamatan_id", "kelurahan_id", "tps_id"], "tps_id")
+      table.index(["kelurahan_id", "tps_no"], "tps_no")
     })
 
     return result
@@ -67,6 +72,8 @@ export class PrepareDatabase {
       table.string("keterangan")
       table.timestamp("updated_at").defaultTo(conn.fn.now())
       table.index(["synced"], "index_synced")
+      table.index(["nik"], "index_nik")
+      table.index(["nkk", "nik"], "index_nkk")
       table.index(["dp_id", "kec_id"], "index_dp_id")
       table.index(["kec_id", "kel_id", "tps_id"], "index_rekap_wilayah")
       table.index(["kec_id", "kel_id", "tps_id", "difabel"], "index_difabel")

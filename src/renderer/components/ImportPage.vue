@@ -1,10 +1,10 @@
 <template>
   <div>
+    <vue-topprogress ref="topProgress" color="#ed7117"></vue-topprogress>
     <div id="header">
       <b-row style="margin-left: 0px !important; margin-right: 0px !important">
         <b-col cols="4">
-          <b-button size="sm" @click="importPemilih()"><span class="simple-icon-rocket" style="margin-right: 10px; margin-left: -2px"></span>{{ $t("actions.import") }}</b-button>
-          <b-button v-b-modal.modalright class="inactive-botton" size="sm"><span class="simple-icon-location-pin" style="margin-right: 10px; margin-left: -2px"></span>{{ $t("actions.workingspace") }}</b-button>
+          <b-button size="sm" @click="routeTo('coklit-page')"><span class="simple-icon-layers" style="margin-right:10px;margin-left:-2px"></span>{{ $t("actions.coklit") }}</b-button>
         </b-col>
         <b-col cols="4">
           <center>
@@ -14,7 +14,11 @@
           </center>
         </b-col>
         <b-col cols="4">
-          <div style="float: right"></div>
+          <div style="float: right">
+            <b-button size="sm" v-b-modal.modalright class="inactive-botton"><span class="simple-icon-map"></span></b-button>
+            <b-button size="sm" class="inactive-botton" @click="resetTable()" style="margin-right: 4px"><span class="simple-icon-reload"></span></b-button>
+            <b-button size="sm" @click="importPemilih()"><span class="simple-icon-drawer" style="margin-right: 10px; margin-left: 2px"></span>{{ $t("actions.import") }}</b-button>
+          </div>
         </b-col>
       </b-row>
     </div>
@@ -80,12 +84,6 @@
                 <v-select :options="kelurahan" v-model="selectedKelurahan" @input="getTps(selectedKelurahan.value)" />
               </b-form-group>
             </b-col>
-
-            <b-col cols="12" v-if="tpsReady">
-              <b-form-group :label="$t('text.tps')" class="has-top-label">
-                <v-select :options="tps" v-model="selectedTps" />
-              </b-form-group>
-            </b-col>
           </b-row>
         </b-form>
 
@@ -104,7 +102,33 @@
           <template>
             <hot-table :settings="settings" :data="excel" ref="handsontable"></hot-table>
           </template>
+          <div class="ket-excel" style="margin-top:20px"><b style="font-size:15px">Keterangan:</b><br /></div>
         </b-colxx>
+
+        <b-col cols="4">
+          <ol style="list-style-type: none;line-height:24px;margin-left:10px;font-size:14px">
+            <li>A. <b>DPID</b>, berisi angka, apabila merupakan data baru maka kosongkan ini.</li>
+            <li>B. <b>NKK</b>, angka 16 digit.</li>
+            <li>C. <b>NIK</b>, angka 16 digit.</li>
+            <li>D. <b>NAMA</b>, nama lengkap pemilih.</li>
+            <li>E. <b>TEMPAT LAHIR</b>, berisi tempat lahir pemilih.</li>
+            <li>F. <b>TANGGAL LAHIR</b>, berisi tanggal lahir pemilih, sesuai format DD|MM|YYYY.</li>
+            <li>G. <b>STATUS</b>, status kawin ["B","S","K"].</li>
+            <li>H. <b>KELAMIN</b>, jenis kelamin ["L","P"].</li>
+          </ol>
+        </b-col>
+        <b-col cols="4">
+          <ol style="list-style-type: none;line-height:24px;margin-left:10px">
+            <li>I. <b>JALAN</b>, alamat jalan atau dusun.</li>
+            <li>J. <b>RT</b>, alamat RT.</li>
+            <li>K. <b>RW</b>, alamat RW.</li>
+            <li>L. <b>KODE DISABILITAS</b>, kode disabilitas pemilih, berupa angka 0-5.</li>
+            <li>M. <b>KTP-el</b>, status KTP-el pemilih ["B","K","S"].</li>
+            <li>N. <b>KETERANGAN</b>, keterangan atau kode saringan_id berupa angka 0-10.</li>
+            <li>O. <b>SUMBER DATA</b>, sumber data pemilih ["dpt", "masyarakat", "baru", "coklit"].</li>
+            <li>P. <b>TPS</b>, lokasi tps, berupa 3 digit angka ["001", "002", "003"].</li>
+          </ol>
+        </b-col>
       </b-row>
 
       <!-- ---------------------------------->
@@ -120,6 +144,7 @@ import "vue-select/dist/vue-select.css"
 import { HotTable } from "@handsontable/vue"
 import Handsontable from "handsontable"
 import "handsontable/dist/handsontable.full.css"
+import { vueTopprogress } from "vue-top-progress"
 
 const electron = require("electron")
 const ipc = electron.ipcRenderer
@@ -128,7 +153,8 @@ export default {
   name: "import-page",
   components: {
     "v-select": vSelect,
-    HotTable: HotTable
+    HotTable: HotTable,
+    vueTopprogress
   },
   data() {
     return {
@@ -160,28 +186,8 @@ export default {
         workingspace: "-",
         id: ""
       },
-      datax: [
-        {
-          dpid: 0,
-          nkk: 0,
-          nik: 0,
-          nama: "NAMA",
-          tempat_lahir: "TEMPAT LAHIR",
-          tanggal_lahir: "HARI | BULAN | TAHUN",
-          kawin: "B/S/P",
-          jenis_kelamin: "L/P",
-          alamat: "Jalan",
-          rt: "000",
-          rw: "000",
-          difabel: "0",
-          ektp: "B/K/S",
-          saringan_id: 0,
-          sumberdata: "sumberdata",
-          tps: "000"
-        }
-      ],
       settings: {
-        data: Handsontable.helper.createSpreadsheetData(1, 15),
+        data: Handsontable.helper.createSpreadsheetData(10, 15),
         columns: [
           {
             data: "dpid",
@@ -249,7 +255,8 @@ export default {
             type: "numeric"
           }
         ],
-        colHeaders: ["dpid", "nokk", "nik", "nama", "tempatLahir", "tanggalLahir ", "status", "kelamin", "jalan", "rt", "rw", "disabilitas", "ektp", "keterangan", "sumber", "tps"],
+        // colHeaders: ["ID", "NKK", "NIK", "NAMA", "TMPT-LHT", "TGL-LHT ", "STATUS", "KEL", "JALAN", "RT", "RW", "DISABILITAS", "KTP-el", "KET", "SUMBER", "TPS"],
+        colHeaders: ["A", "B", "C", "D", "E", "F ", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P"],
         filters: true,
         stretchH: "all",
         autoWrapRow: true,
@@ -265,9 +272,19 @@ export default {
   },
 
   methods: {
+    resetTable() {
+      this.$refs.handsontable.hotInstance.clear()
+    },
     showFilter() {
       this.$refs["modalwarningtps"].hide()
       this.$refs["modalright"].show()
+    },
+    routeTo(page) {
+      if (page === "coklit-page") {
+        this.$router.push({ name: "coklit-page" }).catch((err) => {
+          console.log(err.length)
+        })
+      }
     },
     reset() {
       this.selectedKecamatan = {}
@@ -295,36 +312,46 @@ export default {
       this.warningAfterSyncStatus = false
 
       if (this.selectedKelurahan.value) {
-        let excelData = JSON.parse(localStorage.excelData)
+        this.$toast.error("Please, wait ...", {
+          position: "bottom-right",
+          duration: 0
+        })
 
-        let dataToInsert = excelData.map((result) => {
-          const container = {}
-          container.kec_id = parseFloat(this.selectedKecamatan.value)
-          container.kel_id = parseFloat(this.selectedKelurahan.value)
-          container.tps_id = 0
-          container.dp_id = parseFloat(result[0])
-          container.nkk = result[1].toString()
-          container.nik = result[2].toString()
-          container.nama = result[3]
-          container.tempat_lahir = result[4]
-          container.tanggal_lahir = result[5]
-          container.kawin = result[6].toUpperCase()
-          container.jenis_kelamin = result[7].toUpperCase()
-          container.alamat = result[8]
-          container.rt = result[9]
-          container.rw = result[10]
-          container.difabel = result[11]
-          container.ektp = result[12].toLowerCase()
-          container.saringan_id = result[13]
-          container.sumberdata = result[14].toLowerCase()
-          container.tps = result[15]
-          container.synced = true
-          container.status = "baru"
-          return container
+        let excelData = JSON.parse(localStorage.excelData)
+        let dataToInsert = []
+
+        excelData.map((result) => {
+          if (result[1] !== null) {
+            const container = {}
+            container.kec_id = parseFloat(this.selectedKecamatan.value)
+            container.kel_id = parseFloat(this.selectedKelurahan.value)
+            container.tps_id = 0
+            container.dp_id = parseFloat(result[0])
+            container.nkk = result[1].toString()
+            container.nik = result[2].toString()
+            container.nama = result[3]
+            container.tempat_lahir = result[4]
+            container.tanggal_lahir = result[5]
+            container.kawin = result[6].toUpperCase()
+            container.jenis_kelamin = result[7].toUpperCase()
+            container.alamat = result[8]
+            container.rt = result[9]
+            container.rw = result[10]
+            container.difabel = result[11]
+            container.ektp = result[12].toLowerCase()
+            container.saringan_id = result[13]
+            container.sumberdata = result[14].toLowerCase()
+            container.tps = result[15]
+            container.synced = true
+            container.status = "baru"
+            dataToInsert.push(container)
+          }
         })
 
         ipc.send("savePemilihWebgrid", dataToInsert)
         ipc.once("savePemilihWebgridResult", async (event, result) => {
+          this.$toast.clear()
+
           localStorage.removeItem("excelData")
 
           let message = "Import : " + result.countSuccess + ", Failed : " + result.countError
@@ -332,15 +359,15 @@ export default {
             position: "bottom-right",
             duration: 3000
           })
+
           if (result.countError !== 0) {
             this.warningAfterSync = result.itemError
             this.warningAfterSyncStatus = true
 
-            console.log(this.warningAfterSync)
             this.showModal("modalwarningaftersync")
             this.loadnew(result.itemError)
           } else {
-            this.loadnew(this.datax)
+            this.$refs.handsontable.hotInstance.clear()
           }
         })
       } else {
@@ -420,14 +447,6 @@ export default {
     loadnew(data) {
       this.$refs.handsontable.hotInstance.loadData(data)
       this.$refs.handsontable.hotInstance.loadData(data)
-    },
-    showresult(data) {
-      this.$notify("info filled", "Informasi Penting!", "Data diterima <b> " + data[0].countSuccess + ",</b> data Error <b>" + data[0].countError + "</b>, Silahkan mengecek kembali format dan data yang gagal diupload!", {
-        duration: 1000,
-        permanent: false
-      })
-
-      this.loadnew(this.datax)
     }
   },
   created() {
@@ -443,5 +462,63 @@ export default {
 .vuetable tr td {
   padding-top: 2px !important;
   line-height: 28px !important;
+}
+/* All headers */
+.handsontable th {
+  background: #f3f2f1;
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+  line-height: 40px;
+  font-weight: bold;
+  color: #666666;
+}
+.handsontable td {
+  line-height: 40px;
+}
+.ht_master tr > td:nth-child(2) {
+  color: #666666;
+  font-weight: bold;
+  background: #f3f2f1;
+  text-align: center;
+}
+
+.ht_master tr > td:nth-child(3) {
+  color: #666666;
+  font-weight: bold;
+  text-align: center;
+}
+.ht_master tr > td:nth-child(4) {
+  color: #666666;
+  font-weight: bold;
+  text-align: center;
+}
+.ht_master tr > td:nth-child(7) {
+  text-align: center;
+}
+.ht_master tr > td:nth-child(8) {
+  text-align: center;
+}
+.ht_master tr > td:nth-child(9) {
+  text-align: center;
+}
+.ht_master tr > td:nth-child(11) {
+  text-align: center;
+}
+.ht_master tr > td:nth-child(12) {
+  text-align: center;
+}
+.ht_master tr > td:nth-child(13) {
+  text-align: center;
+}
+.ht_master tr > td:nth-child(14) {
+  text-align: center;
+}
+.ht_master tr > td:nth-child(15) {
+  text-align: center;
+}
+.ht_master tr > td:nth-child(16) {
+  text-align: center;
+}
+.ht_master tr > td:nth-child(17) {
+  text-align: center;
 }
 </style>

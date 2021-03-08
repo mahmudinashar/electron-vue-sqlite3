@@ -458,19 +458,8 @@ export default {
     if (this.loadOnStart) {
       this.loadData()
     }
-    if (this.isFixedHeader) {
-      let elem = this.$el.getElementsByClassName("vuetable-body-wrapper")[0]
-      if (elem !== null) {
-        elem.addEventListener("scroll", this.handleScroll)
-      }
-    }
   },
-  destroyed() {
-    let elem = this.$el.getElementsByClassName("vuetable-body-wrapper")[0]
-    if (elem !== null) {
-      elem.removeEventListener("scroll", this.handleScroll)
-    }
-  },
+
   computed: {
     useDetailRow() {
       if (this.tableData && this.tableData[0] && this.detailRowComponent !== "" && typeof this.tableData[0][this.trackBy] === "undefined") {

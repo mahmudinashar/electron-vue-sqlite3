@@ -1,9 +1,9 @@
 <template>
   <div>
     <div id="header">
-      <b-button size="sm" @click="routeTo('coklit-page')"><span class="simple-icon-crop" style="margin-right:10px;margin-left:-2px"></span>{{ $t("actions.coklit") }}</b-button>
+      <b-button size="sm" @click="routeTo('coklit-page')"><span class="simple-icon-layers" style="margin-right:10px;margin-left:-2px"></span>{{ $t("actions.coklit") }}</b-button>
       <div style="float : right">
-        <b-button class="inactive-botton" size="sm" @click="routeTo('wilayah-page')"><span class="simple-icon-organization" style="color:#FFFFFF;"></span></b-button>
+        <!-- script here  -->
       </div>
     </div>
     <div id="main">
@@ -18,7 +18,7 @@
               </div>
               <div v-if="data.value.nama != 'parent'">
                 <div v-if="data.value.nama === 'TOTAL'">
-                  <b style="margin-left:10px;color:#444 !important">TOTAL </b>
+                  <b style="margin-left:10px;font-size:15px;font-weight:bold;color:#444 !important">TOTAL </b>
                 </div>
 
                 <div v-if="data.value.nama != 'TOTAL'">
@@ -48,10 +48,10 @@ const electron = require("electron")
 const ipc = electron.ipcRenderer
 export default {
   components: {},
-  name: "wilayah-page",
+  name: "rekapitulasi-page",
   data() {
     return {
-      title: "WilayahPage",
+      title: "RekapitulasiPage",
       wilayahId: JSON.parse(localStorage.wilayah_id),
       dataReady: false,
       data: {},
@@ -71,14 +71,10 @@ export default {
   },
   methods: {
     routeTo(page) {
-      if (page === "about-page") {
-        this.$router.push({ name: "about-page" })
-      }
       if (page === "coklit-page") {
-        this.$router.push({ name: "coklit-page" })
-      }
-      if (page === "wilayah-page") {
-        this.$router.push({ name: "wilayah-page" })
+        this.$router.push({ name: "coklit-page" }).catch((err) => {
+          console.log(err.length)
+        })
       }
     },
     async getTps(wilayahId) {

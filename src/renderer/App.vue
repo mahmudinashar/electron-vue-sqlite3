@@ -4,7 +4,7 @@
 
     <b-modal size="lg" id="modalsetting" ref="modalsetting" dismiss="modal">
       <template slot="modal-header">
-        <h5 class="modal-title">{{ $t("modals.setting") }}</h5>
+        <h5 class="modal-title">{{ $t("titles.signin") }}</h5>
       </template>
       <b-container class="bv-example-row">
         <b-row>
@@ -23,6 +23,11 @@
       </b-container>
 
       <template slot="modal-footer">
+        <div style="position:absolute;left:35px;bottom:35px;font-size:11px">
+          <b>Keterangan :</b><br />
+          - Sign In hanya dilakukan sekali, seterusnya sistem telah menyimpan username dan password kamu.<br />
+          - Proses ini membutuhkan <b>koneksi internet</b> untuk memindahkan database wilayah ke lokal.<br />
+        </div>
         <b-button size="sm" @click="saveSetting()">{{ $t("actions.save") }}</b-button>
         <b-button size="sm" variant="secondary" @click="hideModal('modalsetting')">{{ $t("actions.close") }}</b-button>
       </template>
@@ -55,8 +60,8 @@ export default {
     return {
       title: "Main Application",
       syncHistoryReady: false,
-      username: JSON.parse(localStorage.username),
-      password: JSON.parse(localStorage.password),
+      username: "",
+      password: "",
       isValidJwt: false,
       isInetOn: false,
       lastUsed: "",
@@ -79,6 +84,11 @@ export default {
     },
 
     async download() {
+      this.$toast.error("Please, wait ...", {
+        position: "bottom-right",
+        duration: 0
+      })
+
       this.$refs.topProgress.start()
       let validate = await this.validate()
       this.jwt = JSON.parse(localStorage.jwt)
@@ -166,8 +176,12 @@ export default {
           })
 
           // all job done
+          this.$toast.clear()
           this.$refs.topProgress.done()
           this.$refs["modalsetting"].hide()
+          this.$router.push({ name: "home-page" }).catch((err) => {
+            console.log(err.length)
+          })
         } else {
           this.$toast.error("Ops, Session login anda telah selesai!", {
             position: "bottom-right",
@@ -259,10 +273,13 @@ export default {
           localStorage.setItem("lastUsed", JSON.stringify(Date.now()))
           localStorage.setItem("wilayah_id", JSON.stringify(userData.wilayah_id))
 
-          ipc.send("saveSetting", { username: this.username, password: this.password, wilayah_id: userData.wilayah_id })
-
-          // console.log("signed")
+          ipc.send("saveSetting", { username: this.username, password: this.password, wilayah_id: userData.wilayah_id, countKec: userData.countKec, countKel: userData.countKel, countTps: userData.countTps, role: userData.role })
         } else {
+          this.$toast.error("Ops, Kamu gagal sign in pastikan internet kamu baik!", {
+            position: "bottom-right",
+            duration: 4000
+          })
+
           localStorage.removeItem("currentUser")
         }
       })
@@ -271,20 +288,28 @@ export default {
 
   mounted() {
     ipc.on("pageMenu", (event, page) => {
-      if (page === "about") {
-        this.$router.push({ name: "about-page" })
+      if (page === "home") {
+        this.$router.push({ name: "home-page" }).catch((err) => {
+          console.log(err.length)
+        })
       }
       if (page === "coklit") {
-        this.$router.push({ name: "coklit-page" })
+        this.$router.push({ name: "coklit-page" }).catch((err) => {
+          console.log(err.length)
+        })
       }
       if (page === "setting") {
         this.$refs["modalsetting"].show()
       }
-      if (page === "wilayah") {
-        this.$router.push({ name: "wilayah-page" })
+      if (page === "rekapitulasi") {
+        this.$router.push({ name: "rekapitulasi-page" }).catch((err) => {
+          console.log(err.length)
+        })
       }
       if (page === "import") {
-        this.$router.push({ name: "import-page" })
+        this.$router.push({ name: "import-page" }).catch((err) => {
+          console.log(err.length)
+        })
       }
     })
 
@@ -296,10 +321,16 @@ export default {
         let username = result[0].username
         let password = result[0].password
         let wilayahId = result[0].wilayah_id
+        this.username = username
+        this.password = password
 
         localStorage.setItem("username", JSON.stringify(username))
         localStorage.setItem("password", JSON.stringify(password))
         localStorage.setItem("wilayah_id", JSON.stringify(wilayahId))
+        localStorage.setItem("currentUser", JSON.stringify(result[0]))
+        this.$router.push({ name: "home-page" }).catch((err) => {
+          console.log(err.length)
+        })
       }
     })
   }

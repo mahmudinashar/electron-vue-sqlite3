@@ -1,6 +1,6 @@
 "use strict"
 
-import { app, BrowserWindow, ipcMain, Menu, shell, globalShortcut } from "electron"
+import { app, BrowserWindow, ipcMain, Menu, shell } from "electron"
 import { Connection } from "./connection"
 import { PrepareDatabase } from "./prepareDatabase"
 
@@ -8,6 +8,12 @@ import { PrepareDatabase } from "./prepareDatabase"
 let con = new Connection()
 let prepare = new PrepareDatabase()
 let knex = con.connect()
+
+knex.schema.dropTable("setting")
+knex.schema.dropTable("pemilih")
+knex.schema.dropTable("wilayah")
+knex.schema.dropTable("tps")
+
 knex.schema.hasTable("setting").then(function(exists) {
   if (!exists) {
     prepare.createTableSetting(knex)
@@ -52,6 +58,7 @@ function createWindow() {
   //        ipcMain
   // +++++++++++++++++++++
   ipcMain.on("getWilayah", (event, data) => {
+    let knex = con.connect()
     knex
       .from("wilayah")
       .select("*")
@@ -62,10 +69,13 @@ function createWindow() {
       .catch((err) => {
         mainWindow.webContents.send("getWilayahResult", err)
       })
-      .finally(() => {})
+      .finally(() => {
+        knex.destroy()
+      })
   })
 
   ipcMain.on("getWilayahChild", async (event, data) => {
+    let knex = con.connect()
     var result = []
     var rows = []
     rows = await knex
@@ -99,10 +109,12 @@ function createWindow() {
     })
 
     await Promise.all(promises)
+    knex.destroy()
     mainWindow.webContents.send("getWilayahChildResult", result)
   })
 
   ipcMain.on("getPemilihForSync", async (event, data) => {
+    let knex = con.connect()
     let limit = data.limit
     delete data.term
     delete data.sortBy
@@ -123,10 +135,13 @@ function createWindow() {
         console.log(err)
         mainWindow.webContents.send("getPemilihForSyncResult", err)
       })
-      .finally(() => {})
+      .finally(() => {
+        knex.destroy()
+      })
   })
 
   ipcMain.on("getTpsChild", (event, data) => {
+    let knex = con.connect()
     knex
       .from("tps")
       .select("*")
@@ -137,10 +152,13 @@ function createWindow() {
       .catch((err) => {
         mainWindow.webContents.send("getTpsChildResult", err)
       })
-      .finally(() => {})
+      .finally(() => {
+        knex.destroy()
+      })
   })
 
   ipcMain.on("getTpsCount", (event, data) => {
+    let knex = con.connect()
     knex("tps")
       .count("id", { as: "count" })
       .where(data)
@@ -150,10 +168,14 @@ function createWindow() {
       .catch((err) => {
         mainWindow.webContents.send("getTpsCountResult", err)
       })
-      .finally(() => {})
+      .finally(() => {
+        knex.destroy()
+      })
   })
 
   ipcMain.on("saveSetting", (event, data) => {
+    console.log(data)
+    let knex = con.connect()
     knex("setting")
       .truncate()
       .then()
@@ -163,30 +185,44 @@ function createWindow() {
 
     knex("setting")
       .insert(data)
-      .then(mainWindow.webContents.send("saveSettingResult", "data setting has been saved to database!"))
+      .then((rows) => {
+        console.log(rows)
+        mainWindow.webContents.send("saveSettingResult", "data setting has been saved to database!")
+      })
       .catch((err) => {
+        console.log(err)
         mainWindow.webContents.send("saveSettingResult", err)
+      })
+      .finally(() => {
+        knex.destroy()
       })
   })
 
   ipcMain.on("deletePemilih", async (event, data) => {
+    let knex = con.connect()
     let rows = await knex("pemilih")
       .where(data)
       .del()
+
+    knex.destroy()
     mainWindow.webContents.send("deletePemilihResult", rows + " record deleted")
   })
 
   ipcMain.on("updatePemilihByTerm", async (event, data) => {
+    let knex = con.connect()
     let id = data.id
     delete data.id
 
     let rows = await knex("pemilih")
       .whereIn("id", id)
       .update(data.term)
+
+    knex.destroy()
     mainWindow.webContents.send("updatePemilihByTermResult", rows)
   })
 
   ipcMain.on("updatePemilihById", async (event, data) => {
+    let knex = con.connect()
     let id = data.id
     delete data.id
     delete data.dp_id
@@ -197,11 +233,15 @@ function createWindow() {
     let rows = await knex("pemilih")
       .where("id", id)
       .update(data)
+
+    knex.destroy()
     mainWindow.webContents.send("updatePemilihByIdResult", rows)
   })
 
   ipcMain.on("getPemilihById", async (event, data) => {
+    let knex = con.connect()
     delete data.sortBy
+    delete data.term
     delete data.sortDirection
     delete data.limit
     delete data.offset
@@ -210,10 +250,13 @@ function createWindow() {
       .from("pemilih")
       .select("*")
       .where(data)
+
+    knex.destroy()
     mainWindow.webContents.send("getPemilihByIdResult", rows)
   })
 
   ipcMain.on("getPemilih", async (event, data) => {
+    let knex = con.connect()
     console.log(data)
     let term = data.term
     let limit = data.limit
@@ -300,10 +343,12 @@ function createWindow() {
         .limit(limit)
         .offset(offset)
     }
+    knex.destroy()
     mainWindow.webContents.send("getPemilihResult", rows)
   })
 
   ipcMain.on("getPemilihCount", async (event, data) => {
+    let knex = con.connect()
     let term = data.term
     delete data.term
     delete data.sortBy
@@ -367,9 +412,12 @@ function createWindow() {
         .where(data)
       mainWindow.webContents.send("getPemilihCountResult", rows[0])
     }
+    knex.destroy()
   })
 
   ipcMain.on("savePemilihWebgrid", async (event, data) => {
+    console.log("YY")
+    let knex = con.connect()
     let result = {}
     result.countSuccess = 0
     result.countError = 0
@@ -426,6 +474,20 @@ function createWindow() {
     //   }
     // ]
 
+    let listTps = await knex
+      .from("tps")
+      .select("tps_no", "tps_id")
+      .where({ kelurahan_id: data[0].kel_id })
+
+    let savetps = []
+    let savetpsID = []
+    listTps.map(async (listTps) => {
+      let container = {}
+      container[listTps.tps_no] = listTps.tps_id
+      savetps.push(listTps.tps_no)
+      savetpsID.push(container)
+    })
+
     const promises = data.map(async (data) => {
       let tps = data.tps.toString()
       if (tps.length === 1) {
@@ -434,70 +496,69 @@ function createWindow() {
         tps = "0" + tps
       }
 
-      let tpsId = await knex
-        .from("tps")
-        .select("tps_id")
-        .where({ kelurahan_id: data.kel_id, tps_no: tps })
-
+      let tpsId = savetps.includes(tps)
       if (tpsId) {
-        data.tps_id = tpsId[0].tps_id
-      }
+        data.tps_id = savetpsID[0][tps]
 
-      if (data.dp_id) {
-        // bila memiliki dp_id maka update
+        if (data.dp_id) {
+          // bila memiliki dp_id maka update
+          let checkGandaNik = await knex
+            .from("pemilih")
+            .select("id")
+            .whereRaw("nik=" + data.nik + " AND dp_id!=" + data.dp_id)
 
-        let checkGandaNik = await knex
-          .from("pemilih")
-          .count("id", { as: "count" })
-          .where({ nik: data.nik })
-          .whereNot("dp_id", data.nik)
+          if (checkGandaNik.length > 0) {
+            result.countError = result.countError + 1
+            data.status = "Err : Duplicated NIK"
+            itemError.push(data)
+          } else {
+            try {
+              let update = await knex("pemilih")
+                .whereIn("dp_id", data.id)
+                .update(data)
 
-        if (checkGandaNik[0].count > 0) {
-          result.countError = result.countError + 1
-          data.status = "Err : Duplicated NIK"
-          itemError.push(data)
+              if (update) {
+                result.countSuccess = result.countSuccess + 1
+                itemSuccess.push(data)
+              } else {
+                data.status = "Err : unknown error when update database"
+                result.countError = result.countError + 1
+                itemError.push(data)
+              }
+            } catch (err) {
+              result.countError = result.countError + 1
+              data.status = "Err : dpid not exist"
+              itemError.push(data)
+            }
+          }
         } else {
-          try {
-            let update = await knex("pemilih")
-              .whereIn("dp_id", data.id)
-              .update(data)
+          // data fresh
+          let checkGandaNik = await knex
+            .from("pemilih")
+            .select("id")
+            .where({ nik: data.nik })
 
-            if (update) {
+          if (checkGandaNik.length > 0) {
+            result.countError = result.countError + 1
+            data.status = "Err : Duplicated NIK"
+            itemError.push(data)
+          } else {
+            let insert = await knex("pemilih").insert(data)
+            if (insert) {
               result.countSuccess = result.countSuccess + 1
               itemSuccess.push(data)
             } else {
-              data.status = "Err : unknown error when update database"
+              data.status = "Err : unknown error when write database"
               result.countError = result.countError + 1
               itemError.push(data)
             }
-          } catch (err) {
-            result.countError = result.countError + 1
-            data.status = "Err : dpid not exist"
-            itemError.push(data)
           }
         }
       } else {
-        // data fresh
-        let checkGandaNik = await knex
-          .from("pemilih")
-          .count("id", { as: "count" })
-          .where({ nik: data.nik })
-
-        if (checkGandaNik[0].count > 0) {
-          result.countError = result.countError + 1
-          data.status = "Err : Duplicated NIK"
-          itemError.push(data)
-        } else {
-          let insert = await knex("pemilih").insert(data)
-          if (insert) {
-            result.countSuccess = result.countSuccess + 1
-            itemSuccess.push(data)
-          } else {
-            data.status = "Err : unknown error when write database"
-            result.countError = result.countError + 1
-            itemError.push(data)
-          }
-        }
+        // jika tps tidak terdaftar
+        data.status = "Err : tps is not listed"
+        result.countError = result.countError + 1
+        itemError.push(data)
       }
     })
 
@@ -506,11 +567,14 @@ function createWindow() {
     result.itemSuccess = itemSuccess
 
     console.log(result)
+    knex.destroy()
     mainWindow.webContents.send("savePemilihWebgridResult", result)
   })
 
   ipcMain.on("savePemilih", (event, data) => {
-    // console.log(data)
+    console.log("----")
+    console.log(data)
+    let knex = con.connect()
     delete data.term
 
     if (data.length > 199) {
@@ -530,7 +594,9 @@ function createWindow() {
           .catch((err) => {
             mainWindow.webContents.send("savePemilihResult", err)
           })
-          .finally(() => {})
+          .finally(() => {
+            knex.destroy()
+          })
       }
       mainWindow.webContents.send("savePemilihResult", data.length + " record inserted")
     } else {
@@ -542,11 +608,14 @@ function createWindow() {
         .catch((err) => {
           mainWindow.webContents.send("savePemilihResult", err)
         })
-        .finally(() => {})
+        .finally(() => {
+          knex.destroy()
+        })
     }
   })
 
   ipcMain.on("saveWilayah", (event, data) => {
+    let knex = con.connect()
     knex("wilayah")
       .truncate()
       .then()
@@ -562,10 +631,13 @@ function createWindow() {
       .catch((err) => {
         mainWindow.webContents.send("saveWilayahResult", err)
       })
-      .finally(() => {})
+      .finally(() => {
+        knex.destroy()
+      })
   })
 
   ipcMain.on("saveTps", (event, data) => {
+    let knex = con.connect()
     knex("tps")
       .truncate()
       .then()
@@ -589,12 +661,15 @@ function createWindow() {
         .catch((err) => {
           console.log(err)
         })
-        .finally(() => {})
+        .finally(() => {
+          knex.destroy()
+        })
     }
     mainWindow.webContents.send("saveTpsResult", data.length + " record inserted")
   })
 
   ipcMain.on("currentSetting", (event, data) => {
+    let knex = con.connect()
     knex
       .from("setting")
       .select("*")
@@ -603,15 +678,17 @@ function createWindow() {
         mainWindow.webContents.send("currentSettingResult", rows)
       })
       .catch((err) => {
-        throw err
+        mainWindow.webContents.send("currentSettingResult", err)
       })
-      .finally(() => {})
+      .finally(() => {
+        knex.destroy()
+      })
   })
-
   // +++++++++++++++++++++
 
   mainWindow.on("closed", () => {
     mainWindow = null
+    knex.destroy()
   })
 
   let menu = Menu.buildFromTemplate([
@@ -620,37 +697,32 @@ function createWindow() {
       submenu: [
         {
           label: "Sign In",
-          accelerator: "Ctrl+I",
           click() {
             mainWindow.webContents.send("pageMenu", "setting")
           }
         },
         {
-          label: "Import Webgrid",
-          accelerator: "Ctrl+W",
+          label: "Home",
           click() {
-            mainWindow.webContents.send("pageMenu", "import")
+            mainWindow.webContents.send("pageMenu", "home")
           }
         },
         {
-          label: "Pemutakhiran Data Pemilih",
-          accelerator: "Ctrl+P",
+          label: "Pemutakhiran Data",
           click() {
             mainWindow.webContents.send("pageMenu", "coklit")
           }
         },
         {
-          label: "Data Wilayah",
-          accelerator: "Ctrl+T",
+          label: "Import Webgrid",
           click() {
-            mainWindow.webContents.send("pageMenu", "wilayah")
+            mainWindow.webContents.send("pageMenu", "import")
           }
         },
         {
-          label: "Tentang",
-          accelerator: "Ctrl+B",
+          label: "Rekapitulasi",
           click() {
-            mainWindow.webContents.send("pageMenu", "about")
+            mainWindow.webContents.send("pageMenu", "rekapitulasi")
           }
         },
         {
@@ -712,26 +784,4 @@ app.on("activate", () => {
   if (mainWindow === null) {
     createWindow()
   }
-})
-
-app.whenReady().then(() => {
-  globalShortcut.register("CommandOrControl+P", () => {
-    mainWindow.webContents.send("pageMenu", "coklit")
-  })
-
-  globalShortcut.register("CommandOrControl+B", () => {
-    mainWindow.webContents.send("pageMenu", "about")
-  })
-
-  globalShortcut.register("CommandOrControl+I", () => {
-    mainWindow.webContents.send("pageMenu", "setting")
-  })
-
-  globalShortcut.register("CommandOrControl+W", () => {
-    mainWindow.webContents.send("pageMenu", "import")
-  })
-
-  globalShortcut.register("CommandOrControl+T", () => {
-    mainWindow.webContents.send("pageMenu", "wilayah")
-  })
 })

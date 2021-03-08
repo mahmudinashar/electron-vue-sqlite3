@@ -4,9 +4,8 @@
     <div id="header">
       <b-row style="margin-left: 0px !important; margin-right: 0px !important">
         <b-col cols="4">
-          <b-button size="sm" @click="showInsertRecord()"><span class="simple-icon-crop" style="margin-right: 10px; margin-left: -2px"></span>{{ $t("actions.new") }}</b-button>
-          <b-button v-b-modal.modalright class="inactive-botton" size="sm"><span class="simple-icon-chemistry" style="margin-right: 10px; margin-left: -2px"></span>{{ $t("actions.filter") }}</b-button>
-          <b-button @click="reset()" class="inactive-botton" size="sm"><span class="simple-icon-fire" style="margin-right: 10px; margin-left: -2px"></span>{{ $t("actions.reset") }}</b-button>
+          <b-button size="sm" @click="showInsertRecord()"><span class="simple-icon-note" style="margin-right: 10px; margin-left: -2px"></span>{{ $t("actions.new") }}</b-button>
+          <b-button v-b-modal.modalright class="inactive-botton" size="sm"><span class="simple-icon-magnifier" style="margin-right: 10px; margin-left: -2px"></span>{{ $t("actions.filter") }}</b-button>
         </b-col>
         <b-col cols="4">
           <center>
@@ -17,11 +16,12 @@
         </b-col>
         <b-col cols="4">
           <div style="float: right">
+            <b-button @click="reset()" class="inactive-botton" size="sm"><span class="simple-icon-shuffle" style="color: #ffffff"></span></b-button>
+            <b-button class="inactive-botton" size="sm" @click="routeTo('rekapitulasi-page')"><span class="simple-icon-graph" style="color: #ffffff"></span></b-button>
             <b-dropdown right class="inactive-botton" size="sm" text="Actions">
               <b-dropdown-item @click="pull()">{{ $t("actions.pull") }}</b-dropdown-item>
               <b-dropdown-item @click="push()">{{ $t("actions.push") }}</b-dropdown-item>
             </b-dropdown>
-            <b-button class="inactive-botton" size="sm" @click="routeTo('wilayah-page')"><span class="simple-icon-organization" style="color: #ffffff"></span></b-button>
           </div>
         </b-col>
       </b-row>
@@ -1093,14 +1093,10 @@ export default {
       })
     },
     routeTo(page) {
-      if (page === "about-page") {
-        this.$router.push({ name: "about-page" })
-      }
-      if (page === "coklit-page") {
-        this.$router.push({ name: "coklit-page" })
-      }
-      if (page === "wilayah-page") {
-        this.$router.push({ name: "wilayah-page" })
+      if (page === "rekapitulasi-page") {
+        this.$router.push({ name: "rekapitulasi-page" }).catch((err) => {
+          console.log(err.length)
+        })
       }
     },
     makeQueryParams(sortOrder, currentPage, perPage) {
@@ -1470,6 +1466,10 @@ export default {
       })
     },
     async resolve(id) {
+      this.$toast.error("Please, wait ...", {
+        position: "bottom-right",
+        duration: 0
+      })
       this.$refs.topProgress.start()
       let param = "id:" + id
       let paramObj = { dp_id: id }
@@ -1551,7 +1551,7 @@ export default {
                   this.onChangePage()
                 })
               })
-
+              this.$toast.clear()
               this.$refs.topProgress.done()
             } else {
               this.$refs.topProgress.done()
@@ -1566,6 +1566,10 @@ export default {
       }
     },
     async pull() {
+      this.$toast.error("Please, wait ...", {
+        position: "bottom-right",
+        duration: 0
+      })
       this.$refs.topProgress.start()
       let param = ""
       let paramObj = {}
@@ -1658,8 +1662,10 @@ export default {
                 })
               })
 
+              this.$toast.clear()
               this.$refs.topProgress.done()
             } else {
+              this.$toast.clear()
               this.$refs.topProgress.done()
               let message = result.data.errors[0].message
               this.$toast.error(message, {
@@ -1673,6 +1679,11 @@ export default {
     },
 
     async push() {
+      this.$toast.error("Please, wait ...", {
+        position: "bottom-right",
+        duration: 0
+      })
+
       this.$refs.topProgress.start()
       this.warningAfterSyncStatus = false
       let paramObj = this.filterQuery
@@ -1787,8 +1798,10 @@ export default {
                 this.$nextTick(() => {
                   this.$refs.vuetable.reload()
                 })
+                this.$toast.clear()
                 this.$refs.topProgress.done()
               } else {
+                this.$toast.clear()
                 this.$refs.topProgress.done()
                 let message = result.data.errors[0].message
                 this.$toast.error(message, {

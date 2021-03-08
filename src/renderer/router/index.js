@@ -16,14 +16,19 @@ export default new Router({
       component: require("@/components/ImportPage").default
     },
     {
-      path: "/wilayah",
-      name: "wilayah-page",
-      component: require("@/components/WilayahPage").default
+      path: "/rekapitulasi",
+      name: "rekapitulasi-page",
+      component: require("@/components/RekapitulasiPage").default
+    },
+    {
+      path: "/home",
+      name: "home-page",
+      component: require("@/components/HomePage").default
     },
     {
       path: "/",
-      name: "about-page",
-      component: require("@/components/AboutPage").default
+      name: "root-page",
+      component: require("@/components/RootPage").default
     },
     {
       path: "*",
