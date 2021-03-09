@@ -84,7 +84,7 @@ export default {
     },
 
     async download() {
-      this.$toast.error("Please, wait ...", {
+      this.$toast.error("Please wait ...", {
         position: "bottom-right",
         duration: 0
       })
@@ -287,6 +287,8 @@ export default {
   },
 
   mounted() {
+    localStorage.removeItem("selectedKecamatan")
+    localStorage.removeItem("selectedKelurahan")
     ipc.on("pageMenu", (event, page) => {
       if (page === "home") {
         this.$router.push({ name: "home-page" }).catch((err) => {

@@ -318,8 +318,8 @@ export default {
           name: "dp_id",
           sortField: "dp_id",
           title: "DPID",
-          titleClass: "",
-          dataClass: "",
+          titleClass: "center aligned text-center",
+          dataClass: "center aligned text-center",
           width: "0.1%"
         },
         {

@@ -53,15 +53,18 @@
       font-size: 12px !important;
       padding-top: 9px;
       padding-bottom: 0px;
-      color: #222222;
+      color: #555555;
+      background: #ffffff;
     }
 
     th {
       padding-top: 5px !important;
       padding-bottom: 10px !important;
       border: 1px solid #aaa !important;
-      border-bottom: 3px solid #000000 !important;
-      color: #111111;
+      color: #555555;
+      background: #f3f2f1;
+      line-height: 35px;
+      box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
     }
 
     th {
@@ -72,7 +75,7 @@
   tbody {
     tr {
       td {
-        border: 1px solid #888888 !important;
+        border: 1px solid #999999 !important;
       }
     }
 

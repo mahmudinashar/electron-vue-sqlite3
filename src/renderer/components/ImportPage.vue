@@ -16,7 +16,7 @@
         <b-col cols="4">
           <div style="float: right">
             <b-button size="sm" v-b-modal.modalright class="inactive-botton"><span class="simple-icon-map"></span></b-button>
-            <b-button size="sm" class="inactive-botton" @click="resetTable()" style="margin-right: 4px"><span class="simple-icon-reload"></span></b-button>
+            <b-button size="sm" class="inactive-botton" @click="reset()" style="margin-right: 4px"><span class="simple-icon-shuffle"></span></b-button>
             <b-button size="sm" @click="importPemilih()"><span class="simple-icon-drawer" style="margin-right: 10px; margin-left: 2px"></span>{{ $t("actions.import") }}</b-button>
           </div>
         </b-col>
@@ -106,7 +106,7 @@
         </b-colxx>
 
         <b-col cols="4">
-          <ol style="list-style-type: none;line-height:24px;margin-left:10px;font-size:14px">
+          <ol style="list-style-type: none;line-height:24px;margin-left:10px;">
             <li>A. <b>DPID</b>, berisi angka, apabila merupakan data baru maka kosongkan ini.</li>
             <li>B. <b>NKK</b>, angka 16 digit.</li>
             <li>C. <b>NIK</b>, angka 16 digit.</li>
@@ -175,9 +175,9 @@ export default {
       tpsReady: false,
       kelurahanReady: false,
       currentSelectedRecord: "",
-      selectedKecamatan: "",
-      selectedKelurahan: "",
-      selectedTps: "",
+      selectedKecamatan: {},
+      selectedKelurahan: {},
+      selectedTps: {},
       selectedItems: [],
       warningAfterSync: [],
       warningAfterSyncStatus: false,
@@ -272,9 +272,6 @@ export default {
   },
 
   methods: {
-    resetTable() {
-      this.$refs.handsontable.hotInstance.clear()
-    },
     showFilter() {
       this.$refs["modalwarningtps"].hide()
       this.$refs["modalright"].show()
@@ -287,6 +284,10 @@ export default {
       }
     },
     reset() {
+      this.$refs.handsontable.hotInstance.clear()
+      localStorage.removeItem("selectedKecamatan")
+      localStorage.removeItem("selectedKelurahan")
+
       this.selectedKecamatan = {}
       this.selectedKelurahan = {}
       this.selectedTps = {}
@@ -312,7 +313,7 @@ export default {
       this.warningAfterSyncStatus = false
 
       if (this.selectedKelurahan.value) {
-        this.$toast.error("Please, wait ...", {
+        this.$toast.error("Please wait ...", {
           position: "bottom-right",
           duration: 0
         })
@@ -331,7 +332,9 @@ export default {
             container.nik = result[2].toString()
             container.nama = result[3]
             container.tempat_lahir = result[4]
-            container.tanggal_lahir = result[5]
+            let tgl = result[5].split("|")
+            let tgllhr = tgl[2] + "-" + tgl[1] + "-" + tgl[0]
+            container.tanggal_lahir = tgllhr
             container.kawin = result[6].toUpperCase()
             container.jenis_kelamin = result[7].toUpperCase()
             container.alamat = result[8]
@@ -378,6 +381,8 @@ export default {
     filterFunc() {
       this.$refs["modalright"].hide()
       if (this.selectedKecamatan.value) {
+        localStorage.setItem("selectedKecamatan", JSON.stringify(this.selectedKecamatan))
+        localStorage.removeItem("selectedKelurahan")
         this.currentWil.workinglevel = "kecamatan"
         this.currentWil.workingspace = this.selectedKecamatan.label
         this.currentWil.id = this.selectedKecamatan.value
@@ -385,6 +390,7 @@ export default {
       }
 
       if (this.selectedKelurahan.value) {
+        localStorage.setItem("selectedKelurahan", JSON.stringify(this.selectedKelurahan))
         this.currentWil.workinglevel = "kelurahan"
         this.currentWil.workingspace = this.selectedKecamatan.label + " ⇌ " + this.selectedKelurahan.label
         this.currentWil.id = this.selectedKelurahan.value
@@ -426,17 +432,17 @@ export default {
 
         if (tingkat === 3) {
           this.kecamatan = wilayah
-          this.selectedKecamatan = ""
-          this.selectedKelurahan = ""
-          this.selectedTps = ""
+          this.selectedKecamatan = {}
+          this.selectedKelurahan = {}
+          this.selectedTps = {}
           this.tps = {}
           this.kelurahan = {}
         }
         if (tingkat === 4) {
           this.kelurahanReady = true
           this.kelurahan = wilayah
-          this.selectedKelurahan = ""
-          this.selectedTps = ""
+          this.selectedKelurahan = {}
+          this.selectedTps = {}
           this.tps = {}
         }
       })
@@ -453,8 +459,26 @@ export default {
     this.excel = this.data
     this.getWilayah(3, this.wilayahId)
     this.currentWil.workinglevel = "kabupaten"
-    this.currentWil.workingspace = this.username.toUpperCase()
+    this.currentWil.workingspace = JSON.parse(localStorage.username).toUpperCase()
     this.currentWil.id = this.wilayahId
+
+    if (localStorage.getItem("selectedKecamatan") !== null) {
+      this.selectedKecamatan = JSON.parse(localStorage.selectedKecamatan)
+      this.currentWil.workinglevel = "kecamatan"
+      this.currentWil.workingspace = this.selectedKecamatan.label.toUpperCase()
+      this.filterQuery.kec_id = this.selectedKecamatan.value
+      this.currentWil.id = this.selectedKecamatan.value
+    }
+
+    if (localStorage.getItem("selectedKelurahan") !== null) {
+      let selectedKelurahan = JSON.parse(localStorage.selectedKelurahan)
+      this.selectedKelurahan.label = selectedKelurahan.label
+      this.selectedKelurahan.value = selectedKelurahan.value
+      this.currentWil.workinglevel = "kelurahan"
+      this.currentWil.workingspace = this.selectedKecamatan.label + " ⇌ " + this.selectedKelurahan.label
+      this.filterQuery.kel_id = this.selectedKelurahan.value
+      this.currentWil.id = this.selectedKelurahan.value
+    }
   }
 }
 </script>

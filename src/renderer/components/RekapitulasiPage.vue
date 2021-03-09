@@ -1,10 +1,23 @@
 <template>
   <div>
     <div id="header">
-      <b-button size="sm" @click="routeTo('coklit-page')"><span class="simple-icon-layers" style="margin-right:10px;margin-left:-2px"></span>{{ $t("actions.coklit") }}</b-button>
-      <div style="float : right">
-        <!-- script here  -->
-      </div>
+      <b-row style="margin-left: 0px !important; margin-right: 0px !important">
+        <b-col cols="4">
+          <b-button size="sm" @click="routeTo('coklit-page')"><span class="simple-icon-layers" style="margin-right:10px;margin-left:-2px"></span>{{ $t("actions.coklit") }}</b-button>
+        </b-col>
+        <b-col cols="4">
+          <center>
+            <div style="margin-top: 7px">
+              <b>{{ currentWil.workingspace }}</b>
+            </div>
+          </center>
+        </b-col>
+        <b-col cols="4">
+          <div style="float : right">
+            <!-- script here  -->
+          </div>
+        </b-col>
+      </b-row>
     </div>
     <div id="main">
       <b-row>
@@ -12,10 +25,11 @@
           <b-table striped :items="data" :fields="fieldsTable" responsive="xl" v-if="dataReady" thead-class="hidden_header">
             <template v-slot:cell(Wilayah)="data">
               <div v-if="data.value.nama === 'parent'" style="font-weight:bold;font-size: 25px !important;margin-top: -7px;margin-bottom: -7px;">
-                <b
-                  ><a style="color:#000000 !important" v-on:click="getWilayah(data.value.wilayah_id, data.value.nama)" :href="`#` + data.value.wilayah_id">{{ currentWil.nama }}</a></b
+                <b>
+                  <a style="color:#000000 !important" v-on:click="getWilayah(data.value.wilayah_id, data.value.nama)" :href="`#` + data.value.wilayah_id">{{ currentWil.nama }}</a></b
                 >
               </div>
+
               <div v-if="data.value.nama != 'parent'">
                 <div v-if="data.value.nama === 'TOTAL'">
                   <b style="margin-left:10px;font-size:15px;font-weight:bold;color:#444 !important">TOTAL </b>
@@ -52,19 +66,25 @@ export default {
   data() {
     return {
       title: "RekapitulasiPage",
-      wilayahId: JSON.parse(localStorage.wilayah_id),
+      wilayahId: 0,
       dataReady: false,
       data: {},
       currentWil: {},
       fieldsTable: [
         {
           key: "Wilayah",
-          sortable: true
+          sortable: true,
+          class: "tb-name"
         },
         {
-          key: "Jumlah",
+          key: "JumlahTps",
           sortable: true,
-          class: "text-center d-none d-xl-block"
+          class: "text-center tb-value"
+        },
+        {
+          key: "JumlahPemilih",
+          sortable: true,
+          class: "text-center tb-value"
         }
       ]
     }
@@ -89,11 +109,16 @@ export default {
         this.currentWil.wilayah_id = result.wilayah_id
         this.currentWil.parent = result.parent
         this.currentWil.nama = result.nama
+
+        let data = { label: result.nama, value: result.wilayah_id }
+        let selectedKecamatan = JSON.parse(localStorage.selectedKecamatan)
+        localStorage.setItem("selectedKelurahan", JSON.stringify(data))
+        this.currentWil.workingspace = selectedKecamatan.label + " ⇌ " + result.nama
       })
 
       ipc.send("getTpsChild", { kelurahan_id: wilayahId })
       ipc.once("getTpsChildResult", async (event, result) => {
-        let totalTps = 0
+        let totalPemilih = 0
         let childStat = result.map((data) => {
           const container = {}
           container["Wilayah"] = {
@@ -101,9 +126,9 @@ export default {
             wilayah_id: data.tps_id
           }
           container["Nama"] = data.tps_no
-          container["Jumlah"] = "-"
+          container["JumlahPemilih"] = data.countPemilih
           container["Tingkat"] = 5
-          totalTps = totalTps + 1
+          totalPemilih = totalPemilih + data.countPemilih
           return container
         })
 
@@ -115,16 +140,17 @@ export default {
           awal["Wilayah"] = { nama: "parent", wilayah_id: grantParent }
         }
 
-        awal["Jumlah"] = ""
+        awal["JumlahPemilih"] = "JML PEMILIH"
         childStat.unshift(awal)
 
         // tambah akhir
         const akhir = {}
         akhir["Wilayah"] = { nama: "TOTAL", wilayah_id: "" }
-        akhir["Jumlah"] = totalTps
+        akhir["JumlahPemilih"] = totalPemilih
         childStat.push(akhir)
 
         this.data = childStat
+
         this.dataReady = true
       })
     },
@@ -140,11 +166,26 @@ export default {
         this.currentWil.wilayah_id = result.wilayah_id
         this.currentWil.parent = result.parent
         this.currentWil.nama = result.nama
+
+        if (this.currentWil.tingkat === 2) {
+          localStorage.removeItem("selectedKelurahan")
+          localStorage.removeItem("selectedKecamatan")
+        }
+
+        if (this.currentWil.tingkat === 3) {
+          let data = { label: result.nama, value: result.wilayah_id }
+          localStorage.setItem("selectedKecamatan", JSON.stringify(data))
+          localStorage.removeItem("selectedKelurahan")
+          this.currentWil.workinglevel = "kecamatan"
+          this.currentWil.workingspace = result.nama
+          this.currentWil.id = result.wilayah_id
+        }
       })
 
       ipc.send("getWilayahChild", wilayahId)
       ipc.once("getWilayahChildResult", async (event, result) => {
         let totalTps = 0
+        let totalPemilih = 0
         let childStat = result.map((data) => {
           const container = {}
           container["Wilayah"] = {
@@ -152,12 +193,16 @@ export default {
             wilayah_id: data.wilayah_id
           }
           container["Nama"] = data.nama
-          container["Jumlah"] = data.countTps
+          container["JumlahTps"] = data.countTps
+          container["JumlahPemilih"] = data.countPemilih
           container["Tingkat"] = data.tingkat
+
           totalTps = totalTps + data.countTps
+          totalPemilih = totalPemilih + data.countPemilih
           return container
         })
 
+        // console.log(totalPemilih)
         // tambah awal
         const awal = {}
         if (tingkat < 3) {
@@ -166,22 +211,47 @@ export default {
           awal["Wilayah"] = { nama: "parent", wilayah_id: grantParent }
         }
 
-        awal["Jumlah"] = ""
+        awal["JumlahTps"] = "JML TPS"
+        awal["JumlahPemilih"] = "JML PEMILIH"
         childStat.unshift(awal)
 
         // tambah akhir
         const akhir = {}
         akhir["Wilayah"] = { nama: "TOTAL", wilayah_id: "" }
-        akhir["Jumlah"] = totalTps
+        akhir["JumlahTps"] = totalTps
+        akhir["JumlahPemilih"] = totalPemilih
         childStat.push(akhir)
-
         this.data = childStat
         this.dataReady = true
       })
     }
   },
   created() {
-    this.getWilayah(this.wilayahId)
+    if (localStorage.getItem("wilayah_id") !== null) {
+      this.wilayahId = JSON.parse(localStorage.wilayah_id)
+      this.currentWil.workinglevel = "kabupaten"
+      this.currentWil.workingspace = JSON.parse(localStorage.username).toUpperCase()
+    }
+
+    if (localStorage.getItem("selectedKecamatan") !== null) {
+      this.selectedKecamatan = JSON.parse(localStorage.selectedKecamatan)
+      this.currentWil.workinglevel = "kecamatan"
+      this.currentWil.workingspace = this.selectedKecamatan.label.toUpperCase()
+      this.wilayahId = this.selectedKecamatan.value
+    }
+
+    if (localStorage.getItem("selectedKelurahan") !== null) {
+      this.selectedKelurahan = JSON.parse(localStorage.selectedKelurahan)
+      this.currentWil.workinglevel = "kelurahan"
+      this.currentWil.workingspace = this.selectedKecamatan.label + " ⇌ " + this.selectedKelurahan.label
+      this.wilayahId = this.selectedKelurahan.value
+    }
+
+    if (this.selectedKelurahan) {
+      this.getTps(this.wilayahId)
+    } else {
+      this.getWilayah(this.wilayahId)
+    }
   }
 }
 </script>
@@ -191,5 +261,16 @@ export default {
 }
 a:hover {
   text-decoration: none !important;
+}
+
+.tb-name {
+  /* font-weight: bold; */
+  font-size: 13px;
+  color: #666;
+}
+
+.tb-value {
+  /* font-weight: bold; */
+  font-size: 13px;
 }
 </style>

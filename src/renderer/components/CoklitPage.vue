@@ -5,7 +5,7 @@
       <b-row style="margin-left: 0px !important; margin-right: 0px !important">
         <b-col cols="4">
           <b-button size="sm" @click="showInsertRecord()"><span class="simple-icon-note" style="margin-right: 10px; margin-left: -2px"></span>{{ $t("actions.new") }}</b-button>
-          <b-button v-b-modal.modalright class="inactive-botton" size="sm"><span class="simple-icon-magnifier" style="margin-right: 10px; margin-left: -2px"></span>{{ $t("actions.filter") }}</b-button>
+          <b-button v-b-modal.modalright class="inactive-botton" size="sm"><span class="iconsminds-filter-2" style="margin-right: 10px; margin-left: -2px"></span>{{ $t("actions.filter") }}</b-button>
         </b-col>
         <b-col cols="4">
           <center>
@@ -17,10 +17,14 @@
         <b-col cols="4">
           <div style="float: right">
             <b-button @click="reset()" class="inactive-botton" size="sm"><span class="simple-icon-shuffle" style="color: #ffffff"></span></b-button>
-            <b-button class="inactive-botton" size="sm" @click="routeTo('rekapitulasi-page')"><span class="simple-icon-graph" style="color: #ffffff"></span></b-button>
-            <b-dropdown right class="inactive-botton" size="sm" text="Actions">
-              <b-dropdown-item @click="pull()">{{ $t("actions.pull") }}</b-dropdown-item>
-              <b-dropdown-item @click="push()">{{ $t("actions.push") }}</b-dropdown-item>
+            <b-button class="inactive-botton" size="sm" @click="routeTo('rekapitulasi-page')"><span class="iconsminds-line-chart-1" style="color: #ffffff"></span></b-button>
+            <b-dropdown right class="inactive-botton" size="sm" text="Tools">
+              <b-dropdown-item @click="pull()"><span class="simple-icon-link" style="margin-right : 10px"></span>{{ $t("actions.pull") }}</b-dropdown-item>
+              <b-dropdown-item @click="push()"><span class="simple-icon-refresh" style="margin-right : 10px"></span> {{ $t("actions.push") }}</b-dropdown-item>
+              <b-dropdown-item style="border-top:1px dashed #DDDDDD;line-height:2px;margin-bottom:-20px"></b-dropdown-item>
+              <b-dropdown-item @click="analisisK1()">{{ $t("actions.k1") }}</b-dropdown-item>
+              <b-dropdown-item @click="analisisK2()">{{ $t("actions.k2") }}</b-dropdown-item>
+              <b-dropdown-item @click="analisisK3()">{{ $t("actions.k3") }}</b-dropdown-item>
             </b-dropdown>
           </div>
         </b-col>
@@ -661,6 +665,11 @@
         <span>{{ $t("actions.resolve") }}</span>
       </v-contextmenu-item>
 
+      <v-contextmenu-item @click="onContextMenuAction('delete')">
+        <i class="simple-icon-fire" />
+        <span>{{ $t("actions.delete") }}</span>
+      </v-contextmenu-item>
+
       <v-contextmenu-item @click="onContextMenuAction('saring1')">
         <i class="simple-icon-ban" style="color: red" />
         <span>{{ $t("actions.saring1") }}</span>
@@ -958,7 +967,58 @@ export default {
       this.$refs["modalwarningtps"].hide()
       this.$refs["modalright"].show()
     },
+    analisisK1() {
+      ipc.send("analisisK1", "")
+      this.$toast.error("Be patient, analyzing duplicated data (K1)", {
+        position: "bottom-right",
+        duration: 0
+      })
+
+      ipc.once("analisisK1Result", async (event, result) => {
+        this.$toast.clear()
+        this.$toast.error(result, {
+          position: "bottom-right",
+          duration: 3000
+        })
+      })
+    },
+
+    analisisK2() {
+      ipc.send("analisisK2", "")
+      this.$toast.error("Be patient, analyzing duplicated data (K2)", {
+        position: "bottom-right",
+        duration: 0
+      })
+
+      ipc.once("analisisK2Result", async (event, result) => {
+        this.$toast.clear()
+        this.$toast.error(result, {
+          position: "bottom-right",
+          duration: 3000
+        })
+      })
+    },
+
+    analisisK3() {
+      ipc.send("analisisK3", "")
+      this.$toast.error("Be patient, analyzing duplicated data (K3)", {
+        position: "bottom-right",
+        duration: 0
+      })
+
+      ipc.once("analisisK3Result", async (event, result) => {
+        this.$toast.clear()
+        this.$toast.error(result, {
+          position: "bottom-right",
+          duration: 3000
+        })
+      })
+    },
+
     reset() {
+      localStorage.removeItem("selectedKecamatan")
+      localStorage.removeItem("selectedKelurahan")
+
       this.kelurahanReady = false
       this.tpsReady = false
       this.filter.nama = ""
@@ -1014,6 +1074,8 @@ export default {
     filterFunc() {
       this.$refs["modalright"].hide()
       if (this.selectedKecamatan.value) {
+        localStorage.setItem("selectedKecamatan", JSON.stringify(this.selectedKecamatan))
+        localStorage.removeItem("selectedKelurahan")
         this.currentWil.workinglevel = "kecamatan"
         this.currentWil.workingspace = this.selectedKecamatan.label
         this.currentWil.id = this.selectedKecamatan.value
@@ -1021,6 +1083,7 @@ export default {
       }
 
       if (this.selectedKelurahan.value) {
+        localStorage.setItem("selectedKelurahan", JSON.stringify(this.selectedKelurahan))
         this.currentWil.workinglevel = "kelurahan"
         this.currentWil.workingspace = this.selectedKecamatan.label + " ⇌ " + this.selectedKelurahan.label
         this.currentWil.id = this.selectedKelurahan.value
@@ -1215,6 +1278,9 @@ export default {
       if (action === "saring10") {
         this.saringSelected(10)
       }
+      if (action === "delete") {
+        this.deleteSelected()
+      }
       if (action === "edit") {
         let id = this.selectedItems[0]
         let filter = this.filterQuery
@@ -1233,16 +1299,35 @@ export default {
       }
     },
     saringSelected(kode) {
+      this.$toast.error("Please wait ...", {
+        position: "bottom-right",
+        duration: 0
+      })
       let data = {}
       data.id = this.selectedItems
       data.term = { saringan_id: kode, synced: true }
 
       ipc.send("updatePemilihByTerm", data)
       ipc.once("updatePemilihByTermResult", async (event, result) => {
+        this.$toast.clear()
         this.hideModal("modallookup")
         this.onChangePage()
       })
     },
+
+    deleteSelected() {
+      this.$toast.error("Please wait ...", {
+        position: "bottom-right",
+        duration: 0
+      })
+      ipc.send("deletePemilihByTerm", this.selectedItems)
+      ipc.once("deletePemilihByTermResult", async (event, result) => {
+        this.$toast.clear()
+        this.hideModal("modallookup")
+        this.onChangePage()
+      })
+    },
+
     async showInsertRecord() {
       if (this.selectedKelurahan.value) {
         this.$refs["modalbaru"].show()
@@ -1466,7 +1551,7 @@ export default {
       })
     },
     async resolve(id) {
-      this.$toast.error("Please, wait ...", {
+      this.$toast.error("Please wait ...", {
         position: "bottom-right",
         duration: 0
       })
@@ -1566,7 +1651,7 @@ export default {
       }
     },
     async pull() {
-      this.$toast.error("Please, wait ...", {
+      this.$toast.error("Please wait ...", {
         position: "bottom-right",
         duration: 0
       })
@@ -1679,7 +1764,7 @@ export default {
     },
 
     async push() {
-      this.$toast.error("Please, wait ...", {
+      this.$toast.error("Please wait ...", {
         position: "bottom-right",
         duration: 0
       })
@@ -1777,13 +1862,14 @@ export default {
                   let success = hasil[0].itemSuccess
                   let successId = []
                   success.forEach((success) => {
-                    successId.push(success.local_id)
+                    let container = {}
+                    container.id = success.local_id
+                    container.dp_id = success.dpid
+                    container.sync_id = success.sync_id
+                    successId.push(container)
                   })
-                  let data = {}
-                  data.term = { synced: false }
-                  data.id = successId
 
-                  ipc.send("updatePemilihByTerm", data)
+                  ipc.send("updatePemilihByTermPerItem", successId)
                 }
 
                 if (hasil[0].countError !== 0) {
@@ -1863,8 +1949,24 @@ export default {
     this.getWilayah(3, this.wilayahId)
     this.filterQuery.limit = this.perPage
     this.currentWil.workinglevel = "kabupaten"
-    this.currentWil.workingspace = this.username.toUpperCase()
+    this.currentWil.workingspace = JSON.parse(localStorage.username).toUpperCase()
     this.currentWil.id = this.wilayahId
+
+    if (localStorage.getItem("selectedKecamatan") !== null) {
+      this.selectedKecamatan = JSON.parse(localStorage.selectedKecamatan)
+      this.currentWil.workinglevel = "kecamatan"
+      this.currentWil.workingspace = this.selectedKecamatan.label.toUpperCase()
+      this.filterQuery.kec_id = this.selectedKecamatan.value
+      this.currentWil.id = this.selectedKecamatan.value
+    }
+
+    if (localStorage.getItem("selectedKelurahan") !== null) {
+      this.selectedKelurahan = JSON.parse(localStorage.selectedKelurahan)
+      this.currentWil.workinglevel = "kelurahan"
+      this.currentWil.workingspace = this.selectedKecamatan.label + " ⇌ " + this.selectedKelurahan.label
+      this.filterQuery.kel_id = this.selectedKelurahan.value
+      this.currentWil.id = this.selectedKelurahan.value
+    }
   }
 }
 </script>
