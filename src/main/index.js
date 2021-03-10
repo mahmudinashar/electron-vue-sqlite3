@@ -279,7 +279,6 @@ function createWindow() {
     })
 
     await Promise.all(promises)
-    console.log(result)
 
     knex.destroy()
     mainWindow.webContents.send("getTpsChildResult", result)
@@ -322,11 +321,9 @@ function createWindow() {
     knex("setting")
       .insert(data)
       .then((rows) => {
-        console.log(rows)
         mainWindow.webContents.send("saveSettingResult", "data setting has been saved to database!")
       })
       .catch((err) => {
-        console.log(err)
         mainWindow.webContents.send("saveSettingResult", err)
       })
       .finally(() => {
@@ -421,9 +418,98 @@ function createWindow() {
     mainWindow.webContents.send("getPemilihByIdResult", rows)
   })
 
+  ipcMain.on("getPemilihCsv", async (event, data) => {
+    let knex = con.connect()
+    let sortBy = ""
+    if (data.sortBy && data.sortBy !== "id") {
+      sortBy = data.sortBy
+    } else {
+      sortBy = "dp_id"
+    }
+    let sortDirection = data.sortDirection
+    let where = ""
+    let inc = 1
+    let rows = []
+    let term = data.term
+
+    delete data.term
+    delete data.sortBy
+    delete data.sortDirection
+    delete data.limit
+    delete data.offset
+
+    if (term === "filterSearch") {
+      if (data.nama) {
+        if (inc === 1) {
+          where = where + "nama like '%" + data.nama + "%'"
+        } else {
+          where = where + "AND nama like '%" + data.nama + "%'"
+        }
+        delete data.nama
+        inc++
+      }
+
+      if (data.nik) {
+        if (inc === 1) {
+          where = where + "nik like '%" + data.nik + "%'"
+        } else {
+          where = where + "AND nik like '%" + data.nik + "%'"
+        }
+        delete data.nik
+        inc++
+      }
+
+      if (data.nkk) {
+        if (inc === 1) {
+          where = where + "nkk like '%" + data.nkk + "%'"
+        } else {
+          where = where + "AND nkk like '%" + data.nkk + "%'"
+        }
+        delete data.nkk
+        inc++
+      }
+
+      if (data.alamat) {
+        if (inc === 1) {
+          where = where + "alamat like '%" + data.alamat + "%'"
+        } else {
+          where = where + "AND alamat like '%" + data.alamat + "%'"
+        }
+        delete data.alamat
+        inc++
+      }
+
+      if (data.ganda) {
+        if (inc === 1) {
+          where = where + "(k1!=0 OR k2!=0 OR k3!=0)"
+        } else {
+          where = where + "AND (k1!=0 OR k2!=0 OR k3!=0)"
+        }
+        delete data.ganda
+        inc++
+      }
+
+      rows = await knex
+        .from("pemilih")
+        .select("*")
+        .where(data)
+        .whereRaw(where)
+        .orderBy(sortBy, sortDirection)
+    } else {
+      rows = await knex
+        .from("pemilih")
+        .select("*")
+        .where(data)
+        .whereRaw(where)
+        .orderBy(sortBy, sortDirection)
+    }
+
+    knex.destroy()
+    mainWindow.webContents.send("getPemilihCsvResult", rows)
+  })
+
   ipcMain.on("getPemilih", async (event, data) => {
     let knex = con.connect()
-    console.log(data)
     let term = data.term
     let limit = data.limit
     let offset = data.offset
@@ -492,6 +578,16 @@ function createWindow() {
         inc++
       }
 
+      if (data.ganda) {
+        if (inc === 1) {
+          where = where + "(k1!=0 OR k2!=0 OR k3!=0)"
+        } else {
+          where = where + "AND (k1!=0 OR k2!=0 OR k3!=0)"
+        }
+        delete data.ganda
+        inc++
+      }
+
       rows = await knex
         .from("pemilih")
         .select("*")
@@ -509,6 +605,7 @@ function createWindow() {
         .limit(limit)
         .offset(offset)
     }
+
     knex.destroy()
     mainWindow.webContents.send("getPemilihResult", rows)
   })
@@ -565,6 +662,15 @@ function createWindow() {
         delete data.alamat
         inc++
       }
+      if (data.ganda) {
+        if (inc === 1) {
+          where = where + "(k1!=0 AND k2!=0 AND k3!=0)"
+        } else {
+          where = where + "AND (k1!=0 AND k2!=0 AND k3!=0)"
+        }
+        delete data.ganda
+        inc++
+      }
       rows = await knex
         .from("pemilih")
         .count("id", { as: "count" })
@@ -582,7 +688,6 @@ function createWindow() {
   })
 
   ipcMain.on("savePemilihWebgrid", async (event, data) => {
-    console.log("YY")
     let knex = con.connect()
     let result = {}
     result.countSuccess = 0
@@ -590,55 +695,6 @@ function createWindow() {
 
     let itemError = []
     let itemSuccess = []
-
-    // let data = [
-    //   {
-    //     kec_id: 42326,
-    //     kel_id: 42327,
-    //     tps_id: 0,
-    //     dp_id: 1468106,
-    //     nkk: "1871070108080008",
-    //     nik: "1871070105540007",
-    //     nama: "MAHMUDI",
-    //     tempat_lahir: "TELUK BETUNG",
-    //     tanggal_lahir: "01|05|1954",
-    //     kawin: "S",
-    //     jenis_kelamin: "L",
-    //     alamat: "JL S RIYADI IV NO 55",
-    //     rt: "001",
-    //     rw: "001",
-    //     difabel: "0",
-    //     ektp: "s",
-    //     saringan_id: 0,
-    //     sumberdata: "dpt",
-    //     tps: 1,
-    //     synced: true,
-    //     status: "baru"
-    //   },
-    //   {
-    //     kec_id: 42326,
-    //     kel_id: 42327,
-    //     tps_id: 0,
-    //     dp_id: 1468106,
-    //     nkk: "1871070108080006",
-    //     nik: "1871070105540006",
-    //     nama: "MAHMUDIv2",
-    //     tempat_lahir: "TELUK BETUNG",
-    //     tanggal_lahir: "01|05|1954",
-    //     kawin: "S",
-    //     jenis_kelamin: "L",
-    //     alamat: "JL S RIYADI IV NO 55",
-    //     rt: "001",
-    //     rw: "001",
-    //     difabel: "0",
-    //     ektp: "s",
-    //     saringan_id: 0,
-    //     sumberdata: "dpt",
-    //     tps: 1,
-    //     synced: true,
-    //     status: "baru"
-    //   }
-    // ]
 
     let listTps = await knex
       .from("tps")
@@ -732,14 +788,11 @@ function createWindow() {
     result.itemError = itemError
     result.itemSuccess = itemSuccess
 
-    console.log(result)
     knex.destroy()
     mainWindow.webContents.send("savePemilihWebgridResult", result)
   })
 
   ipcMain.on("savePemilih", (event, data) => {
-    console.log("----")
-    console.log(data)
     let knex = con.connect()
     delete data.term
 

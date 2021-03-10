@@ -19,8 +19,9 @@
             <b-button @click="reset()" class="inactive-botton" size="sm"><span class="simple-icon-shuffle" style="color: #ffffff"></span></b-button>
             <b-button class="inactive-botton" size="sm" @click="routeTo('rekapitulasi-page')"><span class="iconsminds-line-chart-1" style="color: #ffffff"></span></b-button>
             <b-dropdown right class="inactive-botton" size="sm" text="Tools">
-              <b-dropdown-item @click="pull()"><span class="simple-icon-link" style="margin-right : 10px"></span>{{ $t("actions.pull") }}</b-dropdown-item>
-              <b-dropdown-item @click="push()"><span class="simple-icon-refresh" style="margin-right : 10px"></span> {{ $t("actions.push") }}</b-dropdown-item>
+              <b-dropdown-item @click="pull()"><span class="iconsminds-link" style="margin-right : 10px"></span>{{ $t("actions.pull") }}</b-dropdown-item>
+              <b-dropdown-item @click="push()"><span class="iconsminds-refresh" style="margin-right : 10px"></span> {{ $t("actions.push") }}</b-dropdown-item>
+              <b-dropdown-item @click="savecsv()"><span class="iconsminds-save" style="font-size:12px;margin-right : 10px"></span> {{ $t("actions.csv") }}</b-dropdown-item>
               <b-dropdown-item style="border-top:1px dashed #DDDDDD;line-height:2px;margin-bottom:-20px"></b-dropdown-item>
               <b-dropdown-item @click="analisisK1()">{{ $t("actions.k1") }}</b-dropdown-item>
               <b-dropdown-item @click="analisisK2()">{{ $t("actions.k2") }}</b-dropdown-item>
@@ -608,7 +609,19 @@
                   font-weight: 600;
                   font-size: 94%;
                 "
-                >Status data <i>Synced</i> ?</span
+                ><i>Synced</i></span
+              >
+            </label>
+
+            <input style="margin-left:30px" class="form-check-input" type="checkbox" value="" id="defaultCheck2" v-model="filter.ganda" />
+            <label style="margin-left:50px" class="form-check-label" for="defaultCheck2">
+              <span
+                style="
+                  color: rgba(58, 58, 58, 0.7);
+                  font-weight: 600;
+                  font-size: 94%;
+                "
+                ><i>Duplicated</i></span
               >
             </label>
           </div>
@@ -644,7 +657,8 @@
           <b-form-checkbox :checked="selectedItems.includes(props.rowData.id)" class="itemCheck mb-0"></b-form-checkbox>
         </template>
       </vuetable>
-      <vuetable-pagination-bootstrap ref="pagination" @vuetable-pagination:change-page="onChangePage" />
+      <vuetable-pagination-bootstrap ref="pagination" @vuetable-pagination:change-page="onChangePage" style="margin-bottom:2px" />
+      <br />
       <!-- ---------------------------------->
       <!-- ----------- end main ---------- -->
       <!-- ---------------------------------->
@@ -761,6 +775,7 @@ export default {
         ektp: "",
         sumberdata: "",
         synced: "",
+        ganda: "",
         alamat: ""
       },
       kode_sumberdata: ["dpt", "coklit", "masyarakat", "import", "baru"],
@@ -776,7 +791,7 @@ export default {
       nik: 0,
       nkk: 0,
       defaultLimit: 200,
-      perPage: 20,
+      perPage: 50,
       curPage: 1,
       filterQuery: {},
       formDetail: {},
@@ -1015,6 +1030,47 @@ export default {
       })
     },
 
+    async savecsv() {
+      this.$toast.error("Please wait, generating csv ..", {
+        position: "bottom-right",
+        duration: 0
+      })
+      const { dialog } = require("electron").remote
+      var fs = require("fs")
+
+      var options = {
+        title: "Save file",
+        defaultPath: "newfile.csv",
+        buttonLabel: "Save",
+
+        filters: [
+          { name: "csv", extensions: ["csv"] },
+          { name: "All Files", extensions: ["*"] }
+        ]
+      }
+
+      let paramObj = this.filterQuery
+      ipc.send("getPemilihCsv", paramObj)
+      ipc.once("getPemilihCsvResult", async (event, result) => {
+        var str = ""
+        result.forEach((result) => {
+          var line = ""
+          let x = Object.values(result)
+          for (var index in x) {
+            if (line !== "") line += "#"
+
+            line += x[index]
+          }
+          str += line + "\r\n"
+        })
+
+        dialog.showSaveDialog(null, options).then(({ filePath }) => {
+          fs.writeFileSync(filePath, str, "utf-8")
+        })
+        this.$toast.clear()
+      })
+    },
+
     reset() {
       localStorage.removeItem("selectedKecamatan")
       localStorage.removeItem("selectedKelurahan")
@@ -1032,6 +1088,7 @@ export default {
       this.filter.ektp = ""
       this.filter.sumberdata = ""
       this.filter.synced = ""
+      this.filter.ganda = ""
       this.filter.alamat = ""
       this.filter.umur = [35, 50]
 
@@ -1141,6 +1198,9 @@ export default {
       if (this.filter.synced === true) {
         this.filterQuery.synced = true
       }
+      if (this.filter.ganda === true) {
+        this.filterQuery.ganda = "all"
+      }
       if (this.filter.saringan_id !== "") {
         this.filterQuery.saringan_id = parseInt(this.filter.saringan_id)
       }
@@ -1187,6 +1247,7 @@ export default {
         this.formDetail = result[0]
         await this.getTps(this.formDetail.kel_id)
         this.$refs["modallookup"].show()
+        delete this.filterQuery.id
       })
     },
     onRowClass(dataItem, index) {
@@ -1291,6 +1352,7 @@ export default {
           this.formDetail = result[0]
           await this.getTps(this.formDetail.kel_id)
           this.$refs["modallookup"].show()
+          delete this.filterQuery.id
         })
       }
       if (action === "resolve") {
@@ -1880,6 +1942,8 @@ export default {
 
                 delete this.filterQuery.id
                 delete this.filterQuery.synced
+
+                this.filterQuery.limit = this.perPage
 
                 this.$nextTick(() => {
                   this.$refs.vuetable.reload()

@@ -50,6 +50,24 @@
                 </div>
               </div>
             </template>
+
+            <template v-slot:cell(JumlahTps)="data">
+              <div v-if="data.item.JumlahTps === 'TPS'" style="font-weight:bold;font-size: 15px !important;">
+                <b>Σ TPS</b>
+              </div>
+              <div v-else>
+                {{ data.item.JumlahTps }}
+              </div>
+            </template>
+
+            <template v-slot:cell(JumlahPemilih)="data">
+              <div v-if="data.item.JumlahPemilih === 'PEMILIH'" style="font-weight:bold;font-size: 15px !important;">
+                <b>Σ PEMILIH</b>
+              </div>
+              <div v-else>
+                {{ data.item.JumlahPemilih }}
+              </div>
+            </template>
           </b-table>
         </b-colxx>
       </b-row>
@@ -140,7 +158,7 @@ export default {
           awal["Wilayah"] = { nama: "parent", wilayah_id: grantParent }
         }
 
-        awal["JumlahPemilih"] = "JML PEMILIH"
+        awal["JumlahPemilih"] = "PEMILIH"
         childStat.unshift(awal)
 
         // tambah akhir
@@ -211,8 +229,8 @@ export default {
           awal["Wilayah"] = { nama: "parent", wilayah_id: grantParent }
         }
 
-        awal["JumlahTps"] = "JML TPS"
-        awal["JumlahPemilih"] = "JML PEMILIH"
+        awal["JumlahTps"] = "TPS"
+        awal["JumlahPemilih"] = "PEMILIH"
         childStat.unshift(awal)
 
         // tambah akhir

@@ -47,10 +47,8 @@
                   <component :is="extractArgs(field.name)" :row-data="item" :row-index="itemIndex" :row-field="field.sortField"></component>
                 </td>
                 <td v-if="extractName(field.name) === '__slot'" :key="fieldIndex" style="text-align:center;line-height: 30px;padding-top: 5px !important;">
-                  <span v-if="item.synced" class="simple-icon-refresh" style="margin-top:-1px;font-size:14px;margin-left:-4px"></span>
-                  <span v-else>
-                    <slot :name="extractArgs(field.name)" :row-data="item" :row-index="itemIndex" :row-field="field.sortField"></slot>
-                  </span>
+                  <slot :name="extractArgs(field.name)" :row-data="item" :row-index="itemIndex" :row-field="field.sortField"></slot>
+                  <span v-if="item.synced" :row-field="field.sortField" class="simple-icon-reload" style="color:#F67B0C;font-weight:bold;position:absolute; margin-top:-21.5px;margin-left:-8px;font-size:12px;"></span>
                 </td>
               </template>
               <template v-else>
@@ -84,10 +82,8 @@
                   <component :is="extractArgs(field.name)" :row-data="item" :row-index="itemIndex" :row-field="field.sortField"></component>
                 </td>
                 <td v-if="extractName(field.name) === '__slot'" :key="fieldIndex" style="text-align:center;line-height: 30px;padding-top: 5px !important;">
-                  <span v-if="item.synced" class="simple-icon-refresh" style="margin-top:-1px;font-size:14px;margin-left:-4px"></span>
-                  <span v-else>
-                    <slot :name="extractArgs(field.name)" :row-data="item" :row-index="itemIndex" :row-field="field.sortField"></slot>
-                  </span>
+                  <slot :name="extractArgs(field.name)" :row-data="item" :row-index="itemIndex" :row-field="field.sortField"></slot>
+                  <span v-if="item.synced" :row-field="field.sortField" class="simple-icon-reload" style="color:#F67B0C;font-weight:bold;position:absolute; margin-top:-21.5px;margin-left:-8px;font-size:12px;"></span>
                 </td>
               </template>
               <template v-else>
@@ -220,7 +216,7 @@ export default {
     multiSort: {
       type: Boolean,
       default() {
-        return false
+        return true
       }
     },
     tableHeight: {
@@ -684,10 +680,22 @@ export default {
       })
       ipc.send("getPemilih", filter)
       ipc.once("getPemilihResult", async (event, result) => {
-        this.tableData = result
+        let dataX = []
+        result.map((data) => {
+          const container = data
+          if (data.nama.length > 20) {
+            container.nama = data.nama.substring(0, 20) + "..."
+          }
+          if (data.alamat.length > 30) {
+            container.alamat = data.alamat.substring(0, 30) + "..."
+          }
+          dataX.push(container)
+        })
+
+        this.tableData = dataX
         this.tablePagination = this.makePagination(countAll, perPage, curPage)
-        this.tablePagination.data = result
-        this.fireEvent("load-success", result)
+        this.tablePagination.data = dataX
+        this.fireEvent("load-success", dataX)
         this.$nextTick(function() {
           this.fixHeader()
           this.fireEvent("pagination-data", this.tablePagination)
@@ -1217,6 +1225,7 @@ export default {
   }, // end: methods
   watch: {
     multiSort(newVal, oldVal) {
+      console.log(newVal)
       if (newVal === false && this.sortOrder.length > 1) {
         this.sortOrder.splice(1)
         this.loadData()
